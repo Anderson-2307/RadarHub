@@ -45,6 +45,7 @@
   letter-spacing: 0.3px;
   color: #fff;
   width: 100%;
+  text-align: center;
 }
 
 .brand-title span {
@@ -56,6 +57,7 @@
   font-weight: 600;
   color: rgba(255, 255, 255, 0.55);
   margin-top: 2px;
+  text-align: center;
 }
 
 .sidebar-close-btn {
