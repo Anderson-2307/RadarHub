@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { Sidebar } from "./components/Sidebar";
+import { VisaoGeralPage } from "./pages/VisaoGeral";
 import { ComparadorPage } from "./pages/Comparador";
 import { RankingPage } from "./pages/Ranking";
 import { CidadesPage } from "./pages/Cidades";
@@ -12,7 +13,8 @@ export default function App() {
       <Sidebar />
       <main className="content">
         <Routes>
-          <Route path="/" element={<ComparadorPage />} />
+          <Route path="/" element={<VisaoGeralPage />} />
+          <Route path="/comparador" element={<ComparadorPage />} />
           <Route path="/ranking" element={<RankingPage />} />
           <Route path="/cidades" element={<CidadesPage />} />
           <Route path="/indicadores" element={<IndicadoresPage />} />

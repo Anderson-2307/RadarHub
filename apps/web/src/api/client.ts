@@ -3,6 +3,7 @@ import type {
   Avaliacao,
   AvaliacaoInput,
   Cidade,
+  DashboardOverview,
   Estado,
   Indicador,
   RankingItem,
@@ -46,4 +47,8 @@ export const avaliacoesApi = {
 
 export const rankingApi = {
   listar: () => api.get<RankingItem[]>("/ranking").then((r) => r.data),
+};
+
+export const dashboardApi = {
+  overview: () => api.get<DashboardOverview>("/dashboard/overview").then((r) => r.data),
 };

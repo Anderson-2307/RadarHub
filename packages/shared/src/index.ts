@@ -54,3 +54,31 @@ export interface RankingItem {
   notaMedia: number;
   variacaoPercentual: number | null;
 }
+
+export interface IndicadorMedia {
+  nome: string;
+  media: number;
+}
+
+export interface TopRankingItem {
+  cidadeId: string;
+  cidadeNome: string;
+  uf: string;
+  notaMedia: number;
+}
+
+export interface PontoEvolucao {
+  periodo: string;
+  notaMedia: number;
+}
+
+export interface DashboardOverview {
+  notaMediaGeral: number;
+  totalCidades: number;
+  totalAvaliacoes: number;
+  indicadorCritico: IndicadorMedia | null;
+  indicadorDestaque: IndicadorMedia | null;
+  perfilMedioIndicadores: IndicadorMedia[];
+  topRanking: TopRankingItem[];
+  evolucaoTemporal: PontoEvolucao[];
+}

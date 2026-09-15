@@ -145,6 +145,110 @@
   cursor: pointer;
 }
 
+.hero-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: linear-gradient(135deg, var(--sebrae-blue-900) 0%, var(--sebrae-blue-700) 46%, var(--sebrae-teal) 100%);
+  border-radius: var(--radius-lg);
+  padding: 34px 38px;
+  margin-bottom: 22px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(500px 300px at 90% 10%, rgba(255, 181, 17, 0.18), transparent 60%);
+}
+
+.hero-banner-text {
+  position: relative;
+  max-width: 560px;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 6px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.hero-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sebrae-yellow);
+}
+
+.hero-banner-text h1 {
+  font-size: 30px;
+  line-height: 1.15;
+  font-weight: 800;
+  margin: 0 0 12px;
+  letter-spacing: -0.4px;
+}
+
+.hero-banner-text h1 span {
+  color: var(--sebrae-yellow);
+}
+
+.hero-banner-text p {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+}
+
+.hero-banner-stat {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  flex: none;
+}
+
+.hero-stat-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.hero-stat-value {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1;
+  margin: 6px 0;
+}
+
+.hero-stat-sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 180px;
+}
+
+@media (max-width: 720px) {
+  .hero-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .hero-banner-stat {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
 .kpi-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

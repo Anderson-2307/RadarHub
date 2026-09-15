@@ -2,7 +2,8 @@ import { NavLink } from "react-router-dom";
 
 const links = [
   { section: "Principal", items: [
-    { to: "/", label: "Comparador de Radar" },
+    { to: "/", label: "Visão Geral" },
+    { to: "/comparador", label: "Comparador de Radar" },
     { to: "/ranking", label: "Ranking de Municípios" },
   ]},
   { section: "Cadastros", items: [
