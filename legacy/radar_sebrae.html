@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Radar de Avaliação - Protótipo (Local)</title>
+
+<!-- Dependências -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+:root{
+    --sebrae-blue:#005ca9;
+    --sebrae-blue-dark:#003f7f;
+    --sebrae-green:#00a859;
+
+    --bg-main:#eef1f5;
+    --bg-gradient:linear-gradient(180deg,#eef1f5 0%,#e3e8ef 100%);
+    --card:#ffffff;
+
+    --border:#d5dae2;
+    --text:#1f2937;
+    --muted:#6b7280;
+
+    --radius:10px;
+}
+
+/* ===================== BASE ===================== */
+*,
+*::before,
+*::after{
+    box-sizing:border-box;
+}
+
+html,body{
+    margin:0;
+    height:100%;
+    font-family:"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg-gradient);
+    color:var(--text);
+    overflow-x:hidden;
+}
+
+.wrap{
+    max-width:1240px;
+    margin:36px auto;
+    padding:20px;
+}
+
+/* ===================== CARDS ===================== */
+.card{
+    background:var(--card);
+    border-radius:var(--radius);
+    border:1px solid var(--border);
+    padding:22px 24px;
+    margin-bottom:26px;
+    position:relative;
+    box-shadow:
+        0 12px 28px rgba(16,24,40,.08),
+        0 2px 6px rgba(16,24,40,.04);
+}
+
+.card::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    height:4px;
+    width:100%;
+    background:var(--sebrae-blue);
+    border-radius:10px 10px 0 0;
+}
+
+/* ===================== TÍTULOS ===================== */
+h1{
+    font-size:26px;
+    font-weight:700;
+    color:var(--sebrae-blue-dark);
+}
+
+h3{
+    font-size:19px;
+    font-weight:700;
+    color:var(--sebrae-blue-dark);
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+h3::before{
+    content:"";
+    width:6px;
+    height:18px;
+    background:var(--sebrae-blue);
+    border-radius:3px;
+}
+
+.sub{
+    font-size:14px;
+    color:var(--muted);
+}
+
+/* ===================== GRIDS ===================== */
+.grid-3{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px 28px;
+}
+
+/* ===================== FORMULÁRIOS ===================== */
+
+/* Grid da Seção 2 */
+.inputs-container-3col{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px 24px;
+    width:100%;
+}
+
+/* Grupo label + input */
+.input-group{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    width:100%;
+}
+
+/* Labels */
+label{
+    font-size:13px;
+    font-weight:600;
+    color:#374151;
+}
+
+/* Inputs e selects */
+.input-group input,
+.input-group select{
+    width:100%;
+    height:42px;
+    padding:0 14px;
+    font-size:14px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:#f9fafb;
+    transition:.2s;
+    min-width:0; /* FUNDAMENTAL */
+}
+
+.input-group input[type="date"]{
+    max-width:100%;
+    min-width:0;
+}
+
+.input-group input:focus,
+.input-group select:focus{
+    outline:none;
+    background:#fff;
+    border-color:var(--sebrae-blue);
+    box-shadow:0 0 0 3px rgba(0,92,169,.15);
+}
+
+.campo{
+    text-align:center;
+}
+
+/* ===================== BOTÕES ===================== */
+.btn{
+    background:var(--sebrae-blue);
+    color:#fff;
+    padding:11px 22px;
+    border:none;
+    border-radius:8px;
+    font-weight:600;
+    font-size:14px;
+    cursor:pointer;
+    box-shadow:0 6px 14px rgba(0,92,169,.25);
+}
+
+.btn:hover{
+    background:var(--sebrae-blue-dark);
+}
+
+.btn.secondary{
+    background:var(--sebrae-green);
+    box-shadow:0 6px 14px rgba(0,168,89,.25);
+}
+
+.btn.ghost{
+    background:#fff;
+    color:var(--sebrae-blue-dark);
+    border:1px solid var(--border);
+    box-shadow:none;
+}
+
+/* ===================== RADAR ===================== */
+.radar-row{
+    display:flex;
+    gap:26px;
+    align-items:flex-start;
+    justify-content:center;
+}
+
+.radar-wrapper{
+    width:720px;
+    padding:12px;
+    background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+    border-radius:12px;
+    border:1px solid var(--border);
+}
+
+.panel-right{
+    width:340px;
+}
+
+/* ===================== AÇÕES ===================== */
+.actions{
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    margin-top:16px;
+}
+
+/* ===================== RESPONSIVO ===================== */
+@media (max-width:1100px){
+    .grid-3{
+        grid-template-columns:repeat(2,1fr);
+    }
+    .radar-row{
+        flex-direction:column;
+    }
+    .panel-right{
+        width:100%;
+    }
+}
+
+@media (max-width:1024px){
+    .inputs-container-3col{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media (max-width:768px){
+    .inputs-container-3col{
+        grid-template-columns:1fr;
+    }
+
+    .radar-wrapper,
+    .panel-right{
+        width:100%;
+        max-width:100%;
+    }
+
+    .radar-wrapper canvas{
+        width:100% !important;
+        height:auto !important;
+    }
+
+    .actions{
+        flex-direction:column;
+    }
+
+    .actions .btn{
+        width:100%;
+    }
+}
+
+/* ===================== LISTA DE CIDADES (CHIPS) ===================== */
+
+.lista-cidades{
+    margin-top:16px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.chip{
+    padding:7px 14px;
+    background:linear-gradient(180deg,#ffffff,#edf4fb);
+    border:1px solid #d3e5f7;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:600;
+    color:#003f7f;
+    box-shadow:
+        0 2px 4px rgba(0,0,0,.06),
+        inset 0 1px 0 rgba(255,255,255,.7);
+}
+
+/* ===================== PADRÃO GLOBAL DE SELECTS ===================== */
+
+.card select{
+    width:100%;
+    height:42px;
+    padding:0 14px;
+    font-size:14px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:#f9fafb;
+    transition:.2s;
+}
+
+.card select:focus{
+    outline:none;
+    background:#fff;
+    border-color:var(--sebrae-blue);
+    box-shadow:0 0 0 3px rgba(0,92,169,.15);
+}
+
+/* ===================== SEÇÃO 1 – INPUT + BOTÕES ALINHADOS ===================== */
+
+.cadastro-cidade{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+}
+
+.cadastro-cidade .input-group{
+    flex:1;
+}
+
+.cadastro-cidade .btn{
+    height:42px;
+    margin-top:19px; /* compensação exata do label */
+    white-space:nowrap;
+}
+
+/* ===================== CORREÇÃO DEFINITIVA – SEÇÃO 1 ===================== */
+
+/* Alinha todas as colunas da grid pela base */
+.card:nth-of-type(2) .grid-3{
+    align-items:end;
+}
+
+/* Remove qualquer desalinhamento interno */
+.card:nth-of-type(2) .grid-3 .col{
+    display:flex;
+    flex-direction:column;
+}
+
+/* Botões mantêm altura padrão */
+.card:nth-of-type(2) .btn{
+    height:42px;
+    white-space:nowrap;
+}
+
+/* ===================== CORREÇÃO RESPONSIVA – MOBILE ===================== */
+@media (max-width: 768px){
+
+    /* Todas as grids viram coluna única */
+    .grid-3,
+    .grid-2,
+    .inputs-container-3col{
+        grid-template-columns: 1fr !important;
+        align-items: stretch !important;
+    }
+
+    /* Colunas não podem estourar */
+    .col{
+        width:100%;
+        max-width:100%;
+    }
+
+    /* Inputs, selects e botões sempre cabem na tela */
+    input,
+    select,
+    button{
+        width:100%;
+        max-width:100%;
+        box-sizing:border-box;
+    }
+
+    /* Seção 1 – botões empilham corretamente */
+    .card:nth-of-type(2) .grid-3{
+        align-items: stretch !important;
+    }
+
+    .card:nth-of-type(2) .grid-3 .col:last-child > div{
+        flex-direction:column;
+    }
+
+    /* Remove qualquer overflow invisível */
+    body{
+        overflow-x:hidden;
+    }
+}
+
+/* =====================================================
+   CORREÇÃO DEFINITIVA – INPUTS DE DATA (SEÇÃO 2)
+   ===================================================== */
+
+@media (max-width: 768px){
+
+    /* Força inputs de data a respeitar o grid */
+    .card input[type="date"]{
+        min-width: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    /* Evita que o grid seja influenciado pelo conteúdo */
+    .inputs-container-3col{
+        grid-auto-columns: 1fr;
+    }
+
+    /* Cada grupo nunca pode estourar */
+    .inputs-container-3col .input-group{
+        min-width: 0;
+        width: 100%;
+    }
+}
+
+/* =====================================================
+   CORREÇÃO FINAL ABSOLUTA – SEÇÃO 2 (REGISTRAR AVALIAÇÃO)
+   ===================================================== */
+
+@media (max-width: 768px){
+
+    /* O FORM da Seção 2 nunca pode estourar */
+    .card form{
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    /* Container principal da Seção 2 */
+    .card .inputs-container-3col{
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box;
+    }
+
+    /* Qualquer wrapper intermediário */
+    .card .inputs-container-3col > *,
+    .card .inputs-container-3col .col{
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    /* Grupo label + input */
+    .card .input-group{
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    /* TODOS os inputs e selects da Seção 2 */
+    .card .inputs-container-3col input,
+    .card .inputs-container-3col select{
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box;
+    }
+
+    /* Inputs de data (principal vilão) */
+    .card .inputs-container-3col input[type="date"]{
+        appearance: none;
+        -webkit-appearance: none;
+    }
+}
+
+/* =====================================================
+   CORREÇÃO TIPOGRÁFICA – LABELS (SEÇÃO 2)
+   ===================================================== */
+
+/* Labels nunca podem invadir outras colunas */
+.card .inputs-container-3col label{
+    display: block;
+    max-width: 100%;
+    line-height: 1.25;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+    <div class="card">
+        <h1>Radar de Avaliação (Local)</h1>
+        <div class="sub">Cadastre cidades, registre avaliações (data e período) e compare radares. Dados salvos no LocalStorage.</div>
+    </div>
+
+    <!-- Cadastro Cidade -->
+    <div class="card">
+        <h3>1. Cadastro de Cidade</h3>
+        <div class="sub small-muted">Cadastre as cidades que irão receber avaliações.</div>
+
+        <div class="grid-3" style="margin-top:12px;">
+            <div class="col">
+                <div class="input-group"><label for="cidadeCadastro">Cidade</label><input id="cidadeCadastro" type="text" placeholder="Ex: Salvador"></div>
+            </div>
+            <div class="col">
+                <div class="input-group"><label for="ufCadastro">UF</label><input id="ufCadastro" type="text" maxlength="2" placeholder="Ex: BA"></div>
+            </div>
+            <div class="col" style="align-items:flex-start;">
+                <div style="display:flex;gap:10px;">
+                    <button id="salvarCidade" class="btn">Salvar Cidade</button>
+                    <button id="limparCidades" class="btn ghost" style="background:#eee;color:#333;border:1px solid #ddd;">Limpar Tudo</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="lista-cidades" id="listaCidades"></div>
+    </div>
+
+    <!-- Cadastro Avaliação -->
+    <div class="card">
+        <h3>2. Registrar Avaliação</h3>
+        <div class="sub small-muted">Selecione a cidade, preencha data/período e os 10 indicadores (0–10).</div>
+
+        <div style="margin-top:12px;">
+            <label>Selecione Cidade</label>
+            <select id="cidadeSelectForm" style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid #e6eef9;"></select>
+        </div>
+
+        <div class="inputs-container-3col" style="margin-top:12px;">
+            <div class="col">
+                <div class="input-group"><label for="dataAvaliacao">Data da Avaliação</label><input id="dataAvaliacao" type="date"></div>
+                <div class="input-group"><label for="periodoInicio">Período - Início</label><input id="periodoInicio" type="date"></div>
+                <div class="input-group"><label for="periodoFim">Período - Fim</label><input id="periodoFim" type="date"></div>
+            </div>
+
+            <div class="col">
+                <div class="input-group"><label for="i1">Gestão Municipal</label><input id="i1" class="campo" type="number" min="0" max="10" step="1" value="6"></div>
+                <div class="input-group"><label for="i2">Lideranças Locais</label><input id="i2" class="campo" type="number" min="0" max="10" step="1" value="5"></div>
+                <div class="input-group"><label for="i3">Desburocratização</label><input id="i3" class="campo" type="number" min="0" max="10" step="1" value="7"></div>
+            </div>
+
+            <div class="col">
+                <div class="input-group"><label for="i4">Sala do Empreendedor</label><input id="i4" class="campo" type="number" min="0" max="10" step="1" value="4"></div>
+                <div class="input-group"><label for="i5">Compras Governamentais</label><input id="i5" class="campo" type="number" min="0" max="10" step="1" value="8"></div>
+                <div class="input-group"><label for="i6">Educação Empreendedora</label><input id="i6" class="campo" type="number" min="0" max="10" step="1" value="6"></div>
+            </div>
+
+            <div class="col" style="grid-column:1 / span 3; margin-top:8px;">
+                <div class="inputs-container-3col" style="grid-template-columns:repeat(3,1fr);">
+                    <div class="input-group"><label for="i7">Inclusão Socioprodutiva</label><input id="i7" class="campo" type="number" min="0" max="10" step="1" value="5"></div>
+                    <div class="input-group"><label for="i8">Marketing Territorial</label><input id="i8" class="campo" type="number" min="0" max="10" step="1" value="7"></div>
+                    <div class="input-group"><label for="i9">Cooperativismo e Crédito</label><input id="i9" class="campo" type="number" min="0" max="10" step="1" value="6"></div>
+                </div>
+            </div>
+
+            <div class="col" style="grid-column:1 / span 3;">
+                <div class="input-group"><label for="i10">Inovação e Sustentabilidade</label><input id="i10" class="campo" type="number" min="0" max="10" step="1" value="9"></div>
+            </div>
+        </div>
+
+        <div style="margin-top:12px; display:flex; gap:12px;">
+            <button id="salvarRadar" class="btn secondary">Salvar Avaliação</button>
+            <div class="small-muted" style="align-self:center;">Ao salvar, a avaliação ficará disponível no comparador.</div>
+        </div>
+    </div>
+
+    <!-- Comparar -->
+    <div class="card">
+        <h3>3. Comparar Períodos (Radar Comparativo)</h3>
+        <div class="sub small-muted">Selecione a cidade e dois períodos (anterior x atual) para gerar o radar comparativo.</div>
+
+        <div class="inputs-container-3col" style="margin-top:12px;">
+            <div class="col"><label>Selecione Cidade</label><select id="cidadeSelect"></select></div>
+            <div class="col"><label>Período - Anterior</label><select id="periodoAnterior"></select></div>
+            <div class="col"><label>Período - Atual</label><select id="periodoAtual"></select></div>
+        </div>
+
+        <div style="margin-top:12px;"><button id="comparar" class="btn">Gerar Radar Comparativo</button></div>
+
+        <div class="radar-row" style="margin-top:18px;">
+            <div class="radar-center">
+                <div class="radar-wrapper" id="radarWrapper">
+                    <h3 style="margin-bottom:8px;">Radar Comparativo (Atual x Anterior)</h3>
+                    <div style="height:420px;">
+                        <canvas id="radarComparativo"></canvas>
+                    </div>
+                    <div class="actions" style="margin-top:12px;">
+                        <button id="exportar" class="btn">Exportar PNG</button>
+                        <button id="exportarPDF" class="btn ghost" style="background:#222;color:#fff;">Exportar PDF</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-right">
+                <div class="percentual-container" id="percentualBox">
+                    <h4 style="margin:0 0 8px 0;">Variação Percentual</h4>
+                    <div id="percentualLista"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="msg" id="msgErro">Verifique os valores: cada indicador deve estar entre 0 e 10.</div>
+    </div>
+
+</div>
+
+<script>
+$(function(){
+
+    // labels
+    const labels = [
+        "Gestão Municipal",
+        "Lideranças Locais",
+        "Desburocratização",
+        "Sala do Empreendedor",
+        "Compras Governamentais",
+        "Educação Empreendedora",
+        "Inclusão Socioprodutiva",
+        "Marketing Territorial",
+        "Cooperativismo e Crédito",
+        "Inovação e Sustentabilidade"
+    ];
+
+    let chart = null;
+
+    // Storage helpers
+    function getCidades(){ return JSON.parse(localStorage.getItem("cidadesRadar") || "[]"); }
+    function setCidades(list){ localStorage.setItem("cidadesRadar", JSON.stringify(list)); }
+    function getAvaliacoes(){ return JSON.parse(localStorage.getItem("avaliacoesRadar") || "[]"); }
+    function setAvaliacoes(list){ localStorage.setItem("avaliacoesRadar", JSON.stringify(list)); }
+
+    // UI: atualizar lista visual de cidades
+    function atualizarListaCidadesVisual(){
+        const cidades = getCidades();
+        const container = $("#listaCidades");
+        container.empty();
+        cidades.forEach(c => container.append(`<div class="chip">${c.cidade} - ${c.uf}</div>`));
+    }
+
+    // popular selects (form e comparador)
+    function popularSelectsCidade(){
+        const cidades = getCidades();
+        const selForm = $("#cidadeSelectForm");
+        const selCompare = $("#cidadeSelect");
+        selForm.empty(); selCompare.empty();
+        selForm.append(`<option value="">-- selecione --</option>`);
+        selCompare.append(`<option value="">-- selecione --</option>`);
+        cidades.forEach((c, idx) => {
+            const label = `${c.cidade} - ${c.uf}`;
+            selForm.append(`<option value="${idx}">${label}</option>`);
+            selCompare.append(`<option value="${idx}">${label}</option>`);
+        });
+    }
+
+    // carregar períodos para cidade selecionada no comparador
+    function carregarPeriodosParaCidade(idxCidade){
+        $("#periodoAnterior").empty();
+        $("#periodoAtual").empty();
+
+        const cidades = getCidades();
+        if (!cidades[idxCidade]) return;
+
+        const cidadeObj = cidades[idxCidade];
+        const avaliacoes = getAvaliacoes().filter(a => a.cidade === cidadeObj.cidade && a.uf === cidadeObj.uf);
+
+        // ordenar por data (asc)
+        avaliacoes.sort((a,b) => a.dataAvaliacao.localeCompare(b.dataAvaliacao));
+
+        avaliacoes.forEach((a, i) => {
+            const texto = `${a.dataAvaliacao} — ${a.periodoInicio} → ${a.periodoFim}`;
+            // armazenamos o índice do array filtrado (i) como value
+            $("#periodoAnterior").append(`<option value="${i}">${texto}</option>`);
+            $("#periodoAtual").append(`<option value="${i}">${texto}</option>`);
+        });
+
+        // armazenar filtrados como data no selects para recuperar depois
+        $("#periodoAnterior").data("avaliacoesFiltradas", avaliacoes);
+        $("#periodoAtual").data("avaliacoesFiltradas", avaliacoes);
+    }
+
+    // Eventos cidade
+    $("#salvarCidade").on("click", function(){
+        const nome = $("#cidadeCadastro").val().trim();
+        const uf = $("#ufCadastro").val().trim().toUpperCase();
+        if (!nome || !uf){ alert("Preencha cidade e UF."); return; }
+        const cidades = getCidades();
+        if (cidades.some(c => c.cidade.toLowerCase() === nome.toLowerCase() && c.uf === uf)){ alert("Cidade já cadastrada."); return; }
+        cidades.push({cidade: nome, uf: uf});
+        setCidades(cidades);
+        $("#cidadeCadastro").val(""); $("#ufCadastro").val("");
+        atualizarListaCidadesVisual(); popularSelectsCidade();
+    });
+
+    $("#limparCidades").on("click", function(){
+        if (!confirm("Remover todas as cidades e avaliações? Isso não pode ser desfeito.")) return;
+        localStorage.removeItem("cidadesRadar");
+        localStorage.removeItem("avaliacoesRadar");
+        atualizarListaCidadesVisual(); popularSelectsCidade();
+        $("#periodoAnterior").empty(); $("#periodoAtual").empty();
+        $("#percentualBox").hide();
+        if (chart){ chart.destroy(); chart = null; }
+        alert("Dados removidos.");
+    });
+
+    // salvar avaliação
+    $("#salvarRadar").on("click", function(){
+        const idxCidade = $("#cidadeSelectForm").val();
+        if (idxCidade === "" || idxCidade === null){ alert("Selecione a cidade antes de salvar."); return; }
+        const cidades = getCidades();
+        const cidadeObj = cidades[idxCidade];
+        if (!cidadeObj){ alert("Cidade inválida."); return; }
+
+        const dataAvaliacao = $("#dataAvaliacao").val();
+        const periodoInicio = $("#periodoInicio").val();
+        const periodoFim = $("#periodoFim").val();
+        if (!dataAvaliacao || !periodoInicio || !periodoFim){ alert("Preencha data e período."); return; }
+
+        // ler indicadores
+        const vals = [];
+        let ok = true;
+        $(".campo").each(function(){ const v = Number($(this).val()); if (isNaN(v)||v<0||v>10) ok=false; vals.push(v); });
+        if (!ok){ alert("Preencha corretamente os indicadores (0–10)."); return; }
+
+        const avaliacoes = getAvaliacoes();
+        avaliacoes.push({
+            cidade: cidadeObj.cidade,
+            uf: cidadeObj.uf,
+            dataAvaliacao: dataAvaliacao,
+            periodoInicio: periodoInicio,
+            periodoFim: periodoFim,
+            valores: vals
+        });
+        setAvaliacoes(avaliacoes);
+        // refresh selects in comparador
+        popularSelectsCidade();
+        alert("Avaliação salva com sucesso.");
+    });
+
+    // quando muda cidade no comparador
+    $("#cidadeSelect").on("change", function(){
+        const idx = $(this).val();
+        if (idx === "" || idx === null){ $("#periodoAnterior").empty(); $("#periodoAtual").empty(); return; }
+        carregarPeriodosParaCidade(Number(idx));
+        $("#percentualBox").hide();
+        if (chart){ chart.destroy(); chart = null; }
+    });
+
+    // calcular percentuais
+    function calcularPercentuais(novo, antigo){
+        const lista = [];
+        for (let i=0;i<novo.length;i++){
+            if (antigo == null){ lista.push({label: labels[i], valor: 0}); continue; }
+            if (antigo[i] === 0 && novo[i] === 0){ lista.push({label: labels[i], valor: 0}); continue; }
+            if (antigo[i] === 0 && novo[i] > 0){ lista.push({label: labels[i], valor: 100}); continue; }
+            const v = ((novo[i] - antigo[i]) / antigo[i]) * 100;
+            lista.push({label: labels[i], valor: v});
+        }
+        return lista;
+    }
+
+    function mostrarPercentuais(lista){
+        $("#percentualLista").empty();
+        lista.forEach(item=>{
+            const cor = item.valor >= 0 ? "percentual-up" : "percentual-down";
+            $("#percentualLista").append(`<div class="percentual-item"><span>${item.label}</span><span class="${cor}">${item.valor.toFixed(1)}%</span></div>`);
+        });
+        $("#percentualBox").fadeIn(200);
+    }
+
+    // desenhar radar
+    function desenharRadar(atual, anterior){
+        if (chart) chart.destroy();
+        const datasets = [];
+        if (anterior){
+            datasets.push({
+                label: "Radar Anterior",
+                data: anterior,
+                borderColor: "rgba(180,0,0,0.85)",
+                backgroundColor: "rgba(180,0,0,0.18)",
+                borderWidth: 2, pointRadius:4, fill:true
+            });
+            const percentuais = calcularPercentuais(atual, anterior);
+            mostrarPercentuais(percentuais);
+        } else {
+            $("#percentualBox").hide();
+        }
+        datasets.push({
+            label: "Radar Atual",
+            data: atual,
+            borderColor: "rgba(1,74,122,0.95)",
+            backgroundColor: "rgba(1,74,122,0.20)",
+            borderWidth: 2, pointRadius:4, fill:true
+        });
+
+        const ctx = document.getElementById("radarComparativo").getContext("2d");
+        chart = new Chart(ctx, {
+            type: "radar",
+            data: { labels: labels, datasets: datasets },
+            options: {
+                animation: { duration: 900, easing: "easeOutQuart" },
+                scales: { r: { suggestedMin:0, suggestedMax:10, ticks:{stepSize:2}, angleLines:{color:"#cfd6e4"}, grid:{color:"#e5e8ef"}, pointLabels:{font:{size:12}} }},
+                plugins: { legend:{position:"top"} },
+                maintainAspectRatio: false,
+                responsive: true
+            }
+        });
+    }
+
+    // comparar
+    $("#comparar").on("click", function(){
+        const idxCidade = $("#cidadeSelect").val();
+        if (idxCidade === "" || idxCidade === null){ alert("Selecione uma cidade para comparar."); return; }
+        const avaliacoesFiltradas = $("#periodoAnterior").data("avaliacoesFiltradas") || [];
+        if (avaliacoesFiltradas.length === 0){ alert("Nenhuma avaliação encontrada para a cidade selecionada."); return; }
+
+        const idxAnterior = Number($("#periodoAnterior").val());
+        const idxAtual = Number($("#periodoAtual").val());
+        if (isNaN(idxAtual)){ alert("Selecione o período atual."); return; }
+        // pegar arrays
+        const anterior = avaliacoesFiltradas[idxAnterior] ? avaliacoesFiltradas[idxAnterior].valores : null;
+        const atual = avaliacoesFiltradas[idxAtual] ? avaliacoesFiltradas[idxAtual].valores : null;
+        if (!atual){ alert("Período atual inválido."); return; }
+        desenharRadar(atual, anterior);
+    });
+
+    // exportar PNG
+    $("#exportar").on("click", function(){
+        const canvas = document.getElementById("radarComparativo");
+        const link = document.createElement("a");
+        link.download = "radar_comparativo.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+
+    // exportar PDF
+    $("#exportarPDF").on("click", async function(){
+        // Criar clone limpo só com radarWrapper e percentualBox para capturar
+        const exportEl = document.createElement("div");
+        exportEl.style.width = "800px";
+        exportEl.style.padding = "12px";
+        exportEl.style.background = "#fff";
+        exportEl.style.borderRadius = "8px";
+
+        const radarClone = $("#radarWrapper").clone()[0];
+        const percentualClone = $("#percentualBox").clone()[0];
+
+        // Garantir que percentual esteja visível no clone
+        percentualClone.style.display = "block";
+
+        exportEl.appendChild(radarClone);
+        exportEl.appendChild(percentualClone);
+        document.body.appendChild(exportEl);
+
+        const canvas = await html2canvas(exportEl, { scale: 2 });
+        document.body.removeChild(exportEl);
+
+        const imgData = canvas.toDataURL("image/png");
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ unit:"mm", format:"a4", orientation:"portrait" });
+
+        pdf.setFontSize(18);
+        pdf.text("Relatório Comparativo - Radar de Indicadores", 105, 15, { align: "center" });
+        pdf.addImage(imgData, "PNG", 15, 25, 180, 120);
+
+        pdf.setFontSize(13);
+        pdf.text("Variação Percentual", 15, 150);
+
+        let y = 158;
+        $("#percentualLista .percentual-item").each(function(){
+            const label = $(this).find("span:first").text();
+            const valor = $(this).find("span:last").text();
+            pdf.setFontSize(11);
+            pdf.text(label, 16, y);
+            pdf.text(valor, 170, y, { align: "right" });
+            y += 7;
+            if (y > 280){ pdf.addPage(); y = 20; }
+        });
+
+        pdf.save("radar_comparativo.pdf");
+    });
+
+    // Inicialização (chamada segura)
+    function init(){
+        atualizarListaCidadesVisual();
+        popularSelectsCidade();
+    }
+
+    init();
+
+});
+</script>
+
+</body>
+</html>
