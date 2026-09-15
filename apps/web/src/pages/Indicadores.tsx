@@ -96,6 +96,7 @@ export function IndicadoresPage() {
         {indicadores.length === 0 ? (
           <div className="empty-state">Nenhum indicador cadastrado ainda.</div>
         ) : (
+          <div className="table-scroll">
           <table className="table">
             <thead>
               <tr>
@@ -126,6 +127,7 @@ export function IndicadoresPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

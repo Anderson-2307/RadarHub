@@ -14,7 +14,12 @@ const links = [
   ]},
 ];
 
-export function Sidebar() {
+interface Props {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function Sidebar({ open, onClose }: Props) {
   const location = useLocation();
   const [colapsadas, setColapsadas] = useState<Record<string, boolean>>({});
 
@@ -23,10 +28,13 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${open ? " open" : ""}`}>
       <div className="brand">
         <span className="dot" />
         RADAR HUB
+        <button type="button" className="sidebar-close-btn" onClick={onClose} aria-label="Fechar menu">
+          ✕
+        </button>
       </div>
       {links.map((group) => {
         const aberta = !colapsadas[group.section];
