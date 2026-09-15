@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 
 const links = [
   { section: "Principal", items: [
@@ -14,28 +15,55 @@ const links = [
 ];
 
 export function Sidebar() {
+  const location = useLocation();
+  const [colapsadas, setColapsadas] = useState<Record<string, boolean>>({});
+
+  function alternar(section: string) {
+    setColapsadas((prev) => ({ ...prev, [section]: !prev[section] }));
+  }
+
   return (
     <aside className="sidebar">
       <div className="brand">
         <span className="dot" />
         RADAR HUB
       </div>
-      {links.map((group) => (
-        <div key={group.section}>
-          <div className="side-section">{group.section}</div>
-          {group.items.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === "/"}
-              className={({ isActive }) => `side-link${isActive ? " active" : ""}`}
+      {links.map((group) => {
+        const aberta = !colapsadas[group.section];
+        const temAtivo = group.items.some((item) =>
+          item.to === "/" ? location.pathname === "/" : location.pathname.startsWith(item.to)
+        );
+        return (
+          <div key={group.section}>
+            <button
+              type="button"
+              className="side-section-toggle"
+              onClick={() => alternar(group.section)}
+              aria-expanded={aberta}
             >
-              <span className="ic" />
-              {item.label}
-            </NavLink>
-          ))}
-        </div>
-      ))}
+              <span className="side-section">{group.section}</span>
+              <span className={`side-toggle-icon${temAtivo && !aberta ? " has-active" : ""}`}>
+                {aberta ? "−" : "+"}
+              </span>
+            </button>
+            {aberta && (
+              <div className="side-group">
+                {group.items.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.to === "/"}
+                    className={({ isActive }) => `side-link${isActive ? " active" : ""}`}
+                  >
+                    <span className="ic" />
+                    {item.label}
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </aside>
   );
 }
