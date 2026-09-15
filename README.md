@@ -1,4 +1,4 @@
-# Radar Sebrae
+# Radar Hub
 
 Sistema de radar dinâmico para avaliação de municípios por período, com cadastro de municípios e de indicadores totalmente configuráveis.
 

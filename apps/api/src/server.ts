@@ -25,5 +25,5 @@ app.use("/api/dashboard", dashboardRouter);
 
 const port = process.env.PORT ?? 3333;
 app.listen(port, () => {
-  console.log(`API Radar Sebrae rodando em http://localhost:${port}`);
+  console.log(`API Radar Hub rodando em http://localhost:${port}`);
 });

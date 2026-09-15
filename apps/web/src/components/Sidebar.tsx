@@ -18,7 +18,7 @@ export function Sidebar() {
     <aside className="sidebar">
       <div className="brand">
         <span className="dot" />
-        RADAR SEBRAE
+        RADAR HUB
       </div>
       {links.map((group) => (
         <div key={group.section}>

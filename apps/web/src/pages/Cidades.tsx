@@ -45,7 +45,7 @@ export function CidadesPage() {
       <div className="page-head">
         <div>
           <h1>Municípios</h1>
-          <p>Cadastre os municípios que serão avaliados no Radar Sebrae.</p>
+          <p>Cadastre os municípios que serão avaliados no Radar Hub.</p>
         </div>
       </div>
 

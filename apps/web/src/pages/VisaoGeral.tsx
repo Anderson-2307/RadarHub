@@ -39,7 +39,7 @@ export function VisaoGeralPage() {
         <div className="hero-banner-text">
           <span className="hero-eyebrow">
             <span className="hero-dot" />
-            Panorama geral do Radar Sebrae
+            Panorama geral do Radar Hub
           </span>
           <h1>
             Desenvolvimento municipal{" "}
