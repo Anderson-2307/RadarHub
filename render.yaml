@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: radarhub-api
+    runtime: docker
+    plan: free
+    dockerfilePath: apps/api/Dockerfile
+    dockerContext: .
+    envVars:
+      - key: PORT
+        value: 3333
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false

@@ -59,16 +59,25 @@ As migrations rodam automaticamente ao subir o container da API.
 
 | Camada    | Serviço sugerido        | Observação |
 |-----------|--------------------------|------------|
-| Frontend  | Vercel ou Netlify        | Free tier, build automático a partir do GitHub |
-| Backend   | Render (free tier)       | Dorme após inatividade — ok para demo |
-| Banco     | Neon ou Supabase (Postgres free tier) | Portátil, dá para exportar via `pg_dump` depois |
+| Frontend  | Vercel                   | Free tier, build automático a partir do GitHub (`vercel.json` já configurado) |
+| Backend   | Render (free tier)       | Dorme após inatividade — ok para demo (`render.yaml` já configurado) |
+| Banco     | Neon (Postgres free tier) | Portátil, dá para exportar via `pg_dump` depois |
 
-Passos gerais:
+### Passo a passo
 
-1. Suba o repositório no GitHub.
-2. Crie um banco no Neon/Supabase e rode as migrations (`npm run migrate` apontando `DATABASE_URL` para ele).
-3. Deploy do `apps/api` no Render, apontando `DATABASE_URL` para o Postgres gerenciado.
-4. Deploy do `apps/web` no Vercel/Netlify, configurando a variável de proxy/API para a URL pública da API (ajustar `vite.config.ts` ou usar uma env `VITE_API_URL` quando for produção).
+1. **Banco (Neon)** — crie uma conta em [neon.tech](https://neon.tech), crie um projeto `radarhub` e copie a *connection string* (formato `postgres://usuario:senha@host/dbname?sslmode=require`).
+2. **Rodar as migrations no Neon** — localmente:
+   ```bash
+   DATABASE_URL="<connection string do Neon>" npm run migrate
+   ```
+3. **API (Render)** — em [render.com](https://render.com), "New" → "Blueprint", conecte o repositório `RadarHub` do GitHub. O Render detecta o `render.yaml` automaticamente e cria o serviço `radarhub-api`. Configure as variáveis de ambiente pedidas:
+   - `DATABASE_URL`: a connection string do Neon
+   - `CORS_ORIGIN`: a URL que o Vercel vai gerar para o frontend (pode ajustar depois do passo 4)
+4. **Frontend (Vercel)** — em [vercel.com](https://vercel.com), "Add New" → "Project", importe o repositório `RadarHub` (o `vercel.json` na raiz já configura build/output). Configure a variável de ambiente:
+   - `VITE_API_URL`: `https://radarhub-api.onrender.com/api` (URL gerada pelo Render + `/api`)
+5. Volte no Render e atualize `CORS_ORIGIN` com a URL final do Vercel (ex: `https://radarhub.vercel.app`), assim a API só aceita requisições do seu frontend.
+
+O plano free do Render "dorme" a API após ~15 min de inatividade — a primeira requisição depois disso demora alguns segundos para acordar. Normal em demonstrações.
 
 ## Migrando para o servidor do cliente
 
