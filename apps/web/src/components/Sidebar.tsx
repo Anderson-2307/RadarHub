@@ -30,12 +30,14 @@ export function Sidebar({ open, onClose }: Props) {
   return (
     <aside className={`sidebar${open ? " open" : ""}`}>
       <div className="brand">
-        <div className="brand-logo-wrap">
-          <img src="/radarhub.png" alt="Radar Hub" className="brand-logo" />
-        </div>
         <button type="button" className="sidebar-close-btn" onClick={onClose} aria-label="Fechar menu">
           ✕
         </button>
+        <img src="/radarhub-icon.png" alt="" className="brand-icon" />
+        <div className="brand-title">
+          RADAR <span>HUB</span>
+        </div>
+        <div className="brand-subtitle">Monitoramento de Indicadores</div>
       </div>
       {links.map((group) => {
         const aberta = !colapsadas[group.section];

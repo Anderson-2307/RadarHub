@@ -29,8 +29,11 @@ export default function App() {
           <span />
           <span />
         </button>
-        <div className="mobile-brand-logo-wrap">
-          <img src="/radarhub.png" alt="Radar Hub" className="mobile-brand-logo" />
+        <div className="mobile-brand">
+          <img src="/radarhub-icon.png" alt="" className="mobile-brand-icon" />
+          <span className="mobile-brand-title">
+            RADAR <span>HUB</span>
+          </span>
         </div>
       </div>
 
