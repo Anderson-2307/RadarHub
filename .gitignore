@@ -8,3 +8,4 @@ build/
 .DS_Store
 .vscode/
 db/data/
+.claude/scheduled_tasks.lock
