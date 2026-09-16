@@ -180,20 +180,26 @@ export function ComparadorPage() {
           {variacoes.length === 0 || !avaliacaoAtual ? (
             <div className="empty-state">Sem dados para exibir.</div>
           ) : (
-            <div className="indic-list">
+            <div className="variacao-table">
+              <div className="variacao-head">
+                <span>Dimensão</span>
+                <span>Anterior</span>
+                <span>Atual</span>
+                <span>Variação</span>
+              </div>
               {variacoes.map((v) => (
-                <div className="indic-row" key={v.label}>
+                <div className="variacao-row" key={v.label}>
                   <span className="indic-name">{v.label}</span>
-                  <div className="indic-vals">
-                    {v.anterior !== null && <span className="pill prev">{v.anterior}</span>}
-                    <span className="pill now">{v.atual}</span>
-                    {v.diff !== null && (
-                      <span className={`pill ${v.diff >= 0 ? "diff-up" : "diff-down"}`}>
-                        {v.diff >= 0 ? "+" : ""}
-                        {v.diff.toFixed(0)}%
-                      </span>
-                    )}
-                  </div>
+                  <span className="pill prev">{v.anterior !== null ? v.anterior : "—"}</span>
+                  <span className="pill now">{v.atual}</span>
+                  {v.diff !== null ? (
+                    <span className={`pill ${v.diff >= 0 ? "diff-up" : "diff-down"}`}>
+                      {v.diff >= 0 ? "+" : ""}
+                      {v.diff.toFixed(0)}%
+                    </span>
+                  ) : (
+                    <span className="pill">—</span>
+                  )}
                 </div>
               ))}
             </div>

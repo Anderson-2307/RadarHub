@@ -517,6 +517,62 @@ select:focus {
   color: #a32d2d;
 }
 
+.variacao-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.variacao-head,
+.variacao-row {
+  display: grid;
+  grid-template-columns: 1.6fr 0.8fr 0.8fr 0.8fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.variacao-head {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  font-weight: 700;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+
+.variacao-head span:not(:first-child) {
+  text-align: center;
+}
+
+.variacao-row {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.variacao-row:last-child {
+  border-bottom: none;
+}
+
+.variacao-row .pill {
+  justify-self: center;
+  min-width: 46px;
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .variacao-head,
+  .variacao-row {
+    grid-template-columns: 1.3fr 0.7fr 0.7fr 0.7fr;
+    gap: 4px;
+  }
+  .variacao-row .pill {
+    min-width: 36px;
+    padding: 3px 5px;
+    font-size: 11px;
+  }
+}
+
 .city-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
