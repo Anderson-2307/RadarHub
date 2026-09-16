@@ -956,10 +956,19 @@ select:focus {
 
 .indicadores-lista li {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   padding: 5px 0;
+}
+
+.indicador-nome {
+  flex: 1;
+}
+
+.status-toggle {
+  flex-shrink: 0;
 }
 
 .indicadores-lista li + li {
