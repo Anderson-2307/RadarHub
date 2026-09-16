@@ -2,11 +2,6 @@
 -- RADAR SEBRAE - MODELO "RADAR GCI" (Eixo > Dimensão > Indicador)
 -- Substitui o modelo plano de indicadores por uma estrutura
 -- hierárquica de 3 níveis, com índice geral de 0 a 100.
---
--- ATENÇÃO: esta migration limpa avaliacao_indicador, avaliacao e
--- indicador, pois a escala de nota muda de 0-10 para 1-5 e o
--- indicador passa a exigir uma dimensão. Assume-se que só existem
--- dados de desenvolvimento/demo até aqui.
 -- ==========================================================
 
 -- ==========================================================
@@ -34,13 +29,6 @@ CREATE TABLE IF NOT EXISTS dimensao (
 );
 
 CREATE INDEX IF NOT EXISTS idx_dimensao_eixo ON dimensao(eixo_id);
-
--- ==========================================================
--- LIMPEZA DO MODELO ANTIGO (nota 0-10, indicador sem dimensão)
--- ==========================================================
-DELETE FROM avaliacao_indicador;
-DELETE FROM avaliacao;
-DELETE FROM indicador;
 
 -- ==========================================================
 -- INDICADOR: agora pertence a uma dimensão; nota passa a ser 1-5
