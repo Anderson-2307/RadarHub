@@ -400,10 +400,22 @@
 }
 
 .filters {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  flex-wrap: wrap;
   margin-bottom: 16px;
+}
+
+.filters select {
+  width: 100%;
+  min-width: 0;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 700px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
 }
 
 .field-group {
