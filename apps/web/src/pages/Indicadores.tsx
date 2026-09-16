@@ -144,17 +144,16 @@ export function IndicadoresPage() {
                         <li style={{ opacity: 0.7 }}>Nenhum indicador cadastrado</li>
                       </ul>
                     ) : (
-                      <ul>
+                      <ul className="indicadores-lista">
                         {dimensao.indicadores.map((ind) => (
                           <li key={ind.id}>
-                            {ind.nome}
-                            {" "}
+                            <span className="indicador-nome">{ind.nome}</span>
                             <button
-                              className="icon-btn"
-                              style={{ color: "inherit", opacity: ind.ativo ? 1 : 0.5 }}
+                              className="status-toggle"
                               onClick={() => alternarAtivo(ind.id, ind.ativo)}
                             >
-                              ({ind.ativo ? "ativo" : "inativo"})
+                              <span className={`status-dot ${ind.ativo ? "on" : "off"}`} />
+                              {ind.ativo ? "Ativo" : "Inativo"}
                             </button>
                           </li>
                         ))}

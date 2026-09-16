@@ -949,6 +949,65 @@ select:focus {
   line-height: 1.6;
 }
 
+.indicadores-lista {
+  list-style: none;
+  padding-left: 0 !important;
+}
+
+.indicadores-lista li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 5px 0;
+}
+
+.indicadores-lista li + li {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.eixo-col.eixo-inovacao .indicadores-lista li + li {
+  border-top-color: rgba(0, 39, 77, 0.12);
+}
+
+.indicador-nome {
+  font-size: 12px;
+}
+
+.status-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: inherit;
+  opacity: 0.85;
+}
+
+.status-toggle:hover {
+  opacity: 1;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.on {
+  background: #34d17a;
+}
+
+.status-dot.off {
+  background: #ff6b6b;
+}
+
 .eixo-score-row {
   display: flex;
   justify-content: space-between;
