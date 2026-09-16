@@ -20,18 +20,23 @@ export function AvaliacoesPage() {
   const [notas, setNotas] = useState<Record<string, string>>({});
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState(false);
+  const [salvando, setSalvando] = useState(false);
+
+  function notasIniciais(est: EixoComEstrutura[]) {
+    const iniciais: Record<string, string> = {};
+    est.forEach((eixo) =>
+      eixo.dimensoes.forEach((dim) =>
+        dim.indicadores.filter((i) => i.ativo).forEach((ind) => (iniciais[ind.id] = "3"))
+      )
+    );
+    return iniciais;
+  }
 
   useEffect(() => {
     Promise.all([cidadesApi.listar(), estruturaApi.listar()]).then(([c, est]) => {
       setCidades(c.filter((x) => x.ativo));
       setEstrutura(est);
-      const iniciais: Record<string, string> = {};
-      est.forEach((eixo) =>
-        eixo.dimensoes.forEach((dim) =>
-          dim.indicadores.filter((i) => i.ativo).forEach((ind) => (iniciais[ind.id] = "3"))
-        )
-      );
-      setNotas(iniciais);
+      setNotas(notasIniciais(est));
     });
   }, []);
 
@@ -75,6 +80,7 @@ export function AvaliacoesPage() {
   }, [estrutura, notas]);
 
   async function salvar() {
+    if (salvando) return;
     setErro(null);
     setSucesso(false);
 
@@ -99,6 +105,7 @@ export function AvaliacoesPage() {
       }
     }
 
+    setSalvando(true);
     try {
       await avaliacoesApi.criar({
         cidadeId,
@@ -108,8 +115,15 @@ export function AvaliacoesPage() {
         notas: notasArray,
       });
       setSucesso(true);
+      setCidadeId("");
+      setDataAvaliacao("");
+      setPeriodoInicio("");
+      setPeriodoFim("");
+      setNotas(notasIniciais(estrutura));
     } catch (err: any) {
       setErro(err?.response?.data?.error ?? "Erro ao registrar avaliação.");
+    } finally {
+      setSalvando(false);
     }
   }
 
@@ -203,8 +217,8 @@ export function AvaliacoesPage() {
 
           <div className="card" style={{ marginTop: 18 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <button className="btn-accent" onClick={salvar}>
-                Salvar avaliação
+              <button className="btn-accent" onClick={salvar} disabled={salvando}>
+                {salvando ? "Salvando..." : "Salvar avaliação"}
               </button>
               {sucesso && <span style={{ color: "#00867b", fontWeight: 600, fontSize: 13.5 }}>Avaliação registrada com sucesso.</span>}
             </div>
