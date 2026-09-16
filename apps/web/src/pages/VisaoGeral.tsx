@@ -15,6 +15,7 @@ import {
 } from "chart.js";
 import { RadarComparativo } from "../components/RadarComparativo";
 import { IsometricBarChart } from "../components/IsometricBarChart";
+import { Painel } from "../components/Painel";
 import { Link } from "react-router-dom";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Filler, Tooltip, Legend);
@@ -115,9 +116,7 @@ export function VisaoGeralPage() {
           </div>
 
           <div className="grid-main">
-            <div className="card">
-              <h3>Top 5 municípios</h3>
-              <p className="sub">Índice geral da avaliação mais recente</p>
+            <Painel titulo="Top 5 municípios" subtitulo="Índice geral da avaliação mais recente">
               <div style={{ height: 260 }}>
                 <Bar
                   data={{
@@ -143,11 +142,9 @@ export function VisaoGeralPage() {
                   }}
                 />
               </div>
-            </div>
+            </Painel>
 
-            <div className="card">
-              <h3>Evolução do índice médio</h3>
-              <p className="sub">Todas as avaliações agrupadas por período</p>
+            <Painel titulo="Evolução do índice médio" subtitulo="Todas as avaliações agrupadas por período">
               <div style={{ height: 260 }}>
                 <Line
                   data={{
@@ -176,21 +173,25 @@ export function VisaoGeralPage() {
                   }}
                 />
               </div>
-            </div>
+            </Painel>
           </div>
 
-          <div className="card" style={{ marginTop: 18 }}>
-            <h3>Perfil médio por dimensão</h3>
-            <p className="sub">Média geral de todos os municípios, por dimensão (avaliação mais recente)</p>
+          <Painel
+            titulo="Perfil médio por dimensão"
+            subtitulo="Média geral de todos os municípios, por dimensão (avaliação mais recente)"
+            style={{ marginTop: 18 }}
+          >
             <RadarComparativo
               labels={data!.perfilMedioDimensoes.map((p) => p.nome)}
               atual={data!.perfilMedioDimensoes.map((p) => Number(p.media.toFixed(1)))}
             />
-          </div>
+          </Painel>
 
-          <div className="card" style={{ marginTop: 18 }}>
-            <h3>Dimensões por eixo</h3>
-            <p className="sub">Pontuação média (0-100) de cada dimensão, agrupada por eixo</p>
+          <Painel
+            titulo="Dimensões por eixo"
+            subtitulo="Pontuação média (0-100) de cada dimensão, agrupada por eixo"
+            style={{ marginTop: 18 }}
+          >
             <div className="eixos-cols">
               {agruparPorEixo(data!.perfilMedioDimensoes).map((grupo) => (
                 <div key={grupo.eixoNome} style={{ textAlign: "center" }}>
@@ -203,7 +204,7 @@ export function VisaoGeralPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </Painel>
         </>
       )}
     </div>
