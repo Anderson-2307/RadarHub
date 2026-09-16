@@ -5,6 +5,11 @@ import { RadarComparativo, exportarRadarPNG, dimensoesParaValores } from "../com
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
+function formatDataBR(iso: string) {
+  const [ano, mes, dia] = iso.split("-");
+  return `${dia}/${mes}/${ano}`;
+}
+
 export function ComparadorPage() {
   const [cidades, setCidades] = useState<Cidade[]>([]);
   const [estrutura, setEstrutura] = useState<EixoComEstrutura[]>([]);
@@ -133,22 +138,24 @@ export function ComparadorPage() {
                 </option>
               ))}
             </select>
-            <select value={idAnterior} onChange={(e) => setIdAnterior(e.target.value)}>
-              <option value="">Sem período anterior</option>
-              {avaliacoes.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.periodoInicio} → {a.periodoFim}
-                </option>
-              ))}
-            </select>
-            <select value={idAtual} onChange={(e) => setIdAtual(e.target.value)}>
-              <option value="">-- período atual --</option>
-              {avaliacoes.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.periodoInicio} → {a.periodoFim}
-                </option>
-              ))}
-            </select>
+            <div className="filters-periodos">
+              <select value={idAnterior} onChange={(e) => setIdAnterior(e.target.value)}>
+                <option value="">Sem período anterior</option>
+                {avaliacoes.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {formatDataBR(a.periodoInicio)} → {formatDataBR(a.periodoFim)}
+                  </option>
+                ))}
+              </select>
+              <select value={idAtual} onChange={(e) => setIdAtual(e.target.value)}>
+                <option value="">-- período atual --</option>
+                {avaliacoes.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {formatDataBR(a.periodoInicio)} → {formatDataBR(a.periodoFim)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {!avaliacaoAtual ? (

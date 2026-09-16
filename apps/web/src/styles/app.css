@@ -400,10 +400,16 @@
 }
 
 .filters {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 10px;
   margin-bottom: 16px;
+}
+
+.filters-periodos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 
 .filters select {
@@ -412,8 +418,8 @@
   text-overflow: ellipsis;
 }
 
-@media (max-width: 700px) {
-  .filters {
+@media (max-width: 480px) {
+  .filters-periodos {
     grid-template-columns: 1fr;
   }
 }
