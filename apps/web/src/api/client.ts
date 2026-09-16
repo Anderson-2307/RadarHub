@@ -4,6 +4,9 @@ import type {
   AvaliacaoInput,
   Cidade,
   DashboardOverview,
+  Dimensao,
+  Eixo,
+  EixoComEstrutura,
   Estado,
   Indicador,
   RankingItem,
@@ -25,16 +28,40 @@ export const cidadesApi = {
   remover: (id: string) => api.delete(`/cidades/${id}`),
 };
 
+export const eixosApi = {
+  listar: (somenteAtivos = false) =>
+    api.get<Eixo[]>("/eixos", { params: { ativos: somenteAtivos } }).then((r) => r.data),
+  criar: (dados: Pick<Eixo, "nome" | "peso" | "ordem">) =>
+    api.post<Eixo>("/eixos", dados).then((r) => r.data),
+  atualizar: (id: string, dados: Partial<Eixo>) =>
+    api.put<Eixo>(`/eixos/${id}`, dados).then((r) => r.data),
+  remover: (id: string) => api.delete(`/eixos/${id}`),
+};
+
+export const dimensoesApi = {
+  listar: (somenteAtivos = false) =>
+    api.get<Dimensao[]>("/dimensoes", { params: { ativos: somenteAtivos } }).then((r) => r.data),
+  criar: (dados: Pick<Dimensao, "eixoId" | "nome" | "ordem">) =>
+    api.post<Dimensao>("/dimensoes", dados).then((r) => r.data),
+  atualizar: (id: string, dados: Partial<Dimensao>) =>
+    api.put<Dimensao>(`/dimensoes/${id}`, dados).then((r) => r.data),
+  remover: (id: string) => api.delete(`/dimensoes/${id}`),
+};
+
 export const indicadoresApi = {
   listar: (somenteAtivos = false) =>
     api
       .get<Indicador[]>("/indicadores", { params: { ativos: somenteAtivos } })
       .then((r) => r.data),
-  criar: (dados: Pick<Indicador, "nome" | "descricao" | "ordem" | "peso">) =>
+  criar: (dados: Pick<Indicador, "dimensaoId" | "nome" | "descricao" | "ordem" | "peso">) =>
     api.post<Indicador>("/indicadores", dados).then((r) => r.data),
   atualizar: (id: string, dados: Partial<Indicador>) =>
     api.put<Indicador>(`/indicadores/${id}`, dados).then((r) => r.data),
   remover: (id: string) => api.delete(`/indicadores/${id}`),
+};
+
+export const estruturaApi = {
+  listar: () => api.get<EixoComEstrutura[]>("/estrutura").then((r) => r.data),
 };
 
 export const avaliacoesApi = {

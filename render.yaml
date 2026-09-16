@@ -1,3 +1,9 @@
+databases:
+  - name: radarhub-db
+    databaseName: radar_sebrae
+    user: radar
+    plan: free
+
 services:
   - type: web
     name: radarhub-api
@@ -9,6 +15,8 @@ services:
       - key: PORT
         value: 3333
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: radarhub-db
+          property: connectionString
       - key: CORS_ORIGIN
-        sync: false
+        value: https://radarhub-web.vercel.app

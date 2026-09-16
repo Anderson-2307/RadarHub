@@ -12,8 +12,29 @@ export interface Cidade {
   ativo: boolean;
 }
 
+export interface Eixo {
+  id: string;
+  nome: string;
+  peso: number;
+  ordem: number;
+  ativo: boolean;
+}
+
+export interface Dimensao {
+  id: string;
+  eixoId: string;
+  eixoNome?: string;
+  nome: string;
+  ordem: number;
+  ativo: boolean;
+}
+
 export interface Indicador {
   id: string;
+  dimensaoId: string;
+  dimensaoNome?: string;
+  eixoId?: string;
+  eixoNome?: string;
   nome: string;
   descricao: string | null;
   ordem: number;
@@ -21,10 +42,27 @@ export interface Indicador {
   ativo: boolean;
 }
 
+export interface EixoComEstrutura extends Eixo {
+  dimensoes: (Dimensao & { indicadores: Indicador[] })[];
+}
+
 export interface NotaIndicador {
   indicadorId: string;
   indicadorNome: string;
   nota: number;
+}
+
+export interface PontuacaoEixo {
+  eixoId: string;
+  eixoNome: string;
+  peso: number;
+  pontuacao: number;
+}
+
+export interface PontuacaoDimensao {
+  dimensaoId: string;
+  nome: string;
+  pontuacao: number;
 }
 
 export interface Avaliacao {
@@ -35,7 +73,9 @@ export interface Avaliacao {
   periodoFim: string;
   observacao: string | null;
   notas: NotaIndicador[];
-  notaMedia: number;
+  indiceGeral: number;
+  porEixo: PontuacaoEixo[];
+  porDimensao: PontuacaoDimensao[];
 }
 
 export interface AvaliacaoInput {
@@ -51,11 +91,12 @@ export interface RankingItem {
   cidadeId: string;
   cidadeNome: string;
   uf: string;
-  notaMedia: number;
+  indiceGeral: number;
   variacaoPercentual: number | null;
 }
 
-export interface IndicadorMedia {
+export interface DimensaoMedia {
+  dimensaoId: string;
   nome: string;
   media: number;
 }
@@ -64,21 +105,21 @@ export interface TopRankingItem {
   cidadeId: string;
   cidadeNome: string;
   uf: string;
-  notaMedia: number;
+  indiceGeral: number;
 }
 
 export interface PontoEvolucao {
   periodo: string;
-  notaMedia: number;
+  indiceMedio: number;
 }
 
 export interface DashboardOverview {
-  notaMediaGeral: number;
+  indiceMedioGeral: number;
   totalCidades: number;
   totalAvaliacoes: number;
-  indicadorCritico: IndicadorMedia | null;
-  indicadorDestaque: IndicadorMedia | null;
-  perfilMedioIndicadores: IndicadorMedia[];
+  dimensaoCritica: DimensaoMedia | null;
+  dimensaoDestaque: DimensaoMedia | null;
+  perfilMedioDimensoes: DimensaoMedia[];
   topRanking: TopRankingItem[];
   evolucaoTemporal: PontoEvolucao[];
 }

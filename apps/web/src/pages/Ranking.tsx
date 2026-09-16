@@ -9,14 +9,14 @@ export function RankingPage() {
     rankingApi.listar().then(setRanking);
   }, []);
 
-  const maior = ranking[0]?.notaMedia ?? 10;
+  const maior = ranking[0]?.indiceGeral ?? 100;
 
   return (
     <div>
       <div className="page-head">
         <div>
           <h1>Ranking de municípios</h1>
-          <p>Ordenado pela nota média da avaliação mais recente de cada município.</p>
+          <p>Ordenado pelo índice geral (0 a 100) da avaliação mais recente de cada município.</p>
         </div>
       </div>
 
@@ -36,11 +36,11 @@ export function RankingPage() {
               <div className="score-bar-bg">
                 <div
                   className="score-bar"
-                  style={{ width: `${Math.min(100, (r.notaMedia / maior) * 100)}%` }}
+                  style={{ width: `${Math.min(100, (r.indiceGeral / maior) * 100)}%` }}
                 />
               </div>
               <div className="score-num">
-                <span>{r.notaMedia.toFixed(1)} / 10</span>
+                <span>{r.indiceGeral.toFixed(0)} / 100</span>
                 <span>
                   {r.variacaoPercentual === null
                     ? "—"

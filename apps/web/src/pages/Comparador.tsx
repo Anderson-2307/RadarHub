@@ -1,22 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
-import type { Avaliacao, Cidade, Indicador } from "@radar-sebrae/shared";
-import { avaliacoesApi, cidadesApi, indicadoresApi } from "../api/client";
-import { RadarComparativo, exportarRadarPNG, notasParaValores } from "../components/RadarComparativo";
+import type { Avaliacao, Cidade, EixoComEstrutura } from "@radar-sebrae/shared";
+import { avaliacoesApi, cidadesApi, estruturaApi } from "../api/client";
+import { RadarComparativo, exportarRadarPNG, dimensoesParaValores } from "../components/RadarComparativo";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
 export function ComparadorPage() {
   const [cidades, setCidades] = useState<Cidade[]>([]);
-  const [indicadores, setIndicadores] = useState<Indicador[]>([]);
+  const [estrutura, setEstrutura] = useState<EixoComEstrutura[]>([]);
   const [cidadeId, setCidadeId] = useState("");
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [idAnterior, setIdAnterior] = useState("");
   const [idAtual, setIdAtual] = useState("");
 
   useEffect(() => {
-    Promise.all([cidadesApi.listar(), indicadoresApi.listar()]).then(([c, i]) => {
+    Promise.all([cidadesApi.listar(), estruturaApi.listar()]).then(([c, est]) => {
       setCidades(c.filter((x) => x.ativo));
-      setIndicadores(i);
+      setEstrutura(est);
     });
   }, []);
 
@@ -40,13 +40,16 @@ export function ComparadorPage() {
     });
   }, [cidadeId]);
 
-  const labels = useMemo(() => indicadores.filter((i) => i.ativo).map((i) => i.nome), [indicadores]);
+  const labels = useMemo(
+    () => estrutura.flatMap((eixo) => eixo.dimensoes.map((d) => d.nome)),
+    [estrutura]
+  );
 
   const avaliacaoAtual = avaliacoes.find((a) => a.id === idAtual);
   const avaliacaoAnterior = avaliacoes.find((a) => a.id === idAnterior);
 
-  const valoresAtual = avaliacaoAtual ? notasParaValores(labels, avaliacaoAtual.notas) : [];
-  const valoresAnterior = avaliacaoAnterior ? notasParaValores(labels, avaliacaoAnterior.notas) : null;
+  const valoresAtual = avaliacaoAtual ? dimensoesParaValores(labels, avaliacaoAtual.porDimensao) : [];
+  const valoresAnterior = avaliacaoAnterior ? dimensoesParaValores(labels, avaliacaoAnterior.porDimensao) : null;
 
   const variacoes = labels.map((label, idx) => {
     const atual = valoresAtual[idx] ?? 0;
@@ -58,9 +61,9 @@ export function ComparadorPage() {
     return { label, atual, anterior, diff };
   });
 
-  const notaMediaAtual = avaliacaoAtual?.notaMedia ?? 0;
-  const notaMediaAnterior = avaliacaoAnterior?.notaMedia ?? null;
-  const deltaMedia = notaMediaAnterior !== null ? notaMediaAtual - notaMediaAnterior : null;
+  const indiceAtual = avaliacaoAtual?.indiceGeral ?? 0;
+  const indiceAnterior = avaliacaoAnterior?.indiceGeral ?? null;
+  const deltaIndice = indiceAnterior !== null ? indiceAtual - indiceAnterior : null;
 
   async function exportarPDF() {
     const el = document.getElementById("area-exportar");
@@ -83,19 +86,19 @@ export function ComparadorPage() {
       <div className="page-head">
         <div>
           <h1>Comparador de Radar</h1>
-          <p>Compare a evolução de indicadores de um município entre dois períodos.</p>
+          <p>Compare a evolução do índice de um município entre dois períodos, por dimensão.</p>
         </div>
       </div>
 
       <div className="kpi-row">
         <div className="kpi">
-          <span className="label">Nota média — período atual</span>
+          <span className="label">Índice geral — período atual</span>
           <div className="val">
-            {notaMediaAtual.toFixed(1)}
-            {deltaMedia !== null && (
-              <span className={`delta ${deltaMedia >= 0 ? "up" : "down"}`}>
-                {deltaMedia >= 0 ? "+" : ""}
-                {deltaMedia.toFixed(1)}
+            {indiceAtual.toFixed(0)}
+            {deltaIndice !== null && (
+              <span className={`delta ${deltaIndice >= 0 ? "up" : "down"}`}>
+                {deltaIndice >= 0 ? "+" : ""}
+                {deltaIndice.toFixed(0)}
               </span>
             )}
           </div>
@@ -109,7 +112,7 @@ export function ComparadorPage() {
           <div className="val">{avaliacoes.length}</div>
         </div>
         <div className="kpi">
-          <span className="label">Indicadores no radar</span>
+          <span className="label">Dimensões no radar</span>
           <div className="val">{labels.length}</div>
         </div>
       </div>
@@ -172,7 +175,7 @@ export function ComparadorPage() {
         </div>
 
         <div className="card">
-          <h3>Variação por indicador</h3>
+          <h3>Variação por dimensão</h3>
           <p className="sub">Diferença percentual entre os períodos selecionados</p>
           {variacoes.length === 0 || !avaliacaoAtual ? (
             <div className="empty-state">Sem dados para exibir.</div>

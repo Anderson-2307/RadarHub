@@ -880,3 +880,87 @@ select:focus {
     padding: 16px;
   }
 }
+
+.eixos-cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.eixo-col {
+  border-radius: var(--radius-md);
+  padding: 18px;
+  color: #fff;
+}
+
+.eixo-col.eixo-gestao {
+  background: var(--sebrae-blue-900);
+}
+
+.eixo-col.eixo-competitividade {
+  background: var(--sebrae-blue-700);
+}
+
+.eixo-col.eixo-inovacao {
+  background: var(--sebrae-yellow-dark);
+  color: var(--sebrae-blue-900);
+}
+
+.eixo-col-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.eixo-col-head h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.eixo-col-head span {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.dimensao-block {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.eixo-col.eixo-inovacao .dimensao-block {
+  background: rgba(0, 39, 77, 0.08);
+}
+
+.dimensao-block h5 {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.dimensao-block ul {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.eixo-score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
+
+@media (max-width: 900px) {
+  .eixos-cols {
+    grid-template-columns: 1fr;
+  }
+}

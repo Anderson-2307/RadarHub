@@ -46,15 +46,15 @@ export function VisaoGeralPage() {
             <span>em uma visão só</span>
           </h1>
           <p>
-            Acompanhe a evolução dos municípios atendidos, identifique indicadores críticos e
-            compare o progresso ao longo do tempo.
+            Acompanhe a evolução dos municípios atendidos, identifique dimensões críticas e
+            compare o progresso ao longo do tempo — índice de maturidade de 0 a 100.
           </p>
         </div>
         {data && (
           <div className="hero-banner-stat">
-            <span className="hero-stat-label">Nota média geral</span>
-            <span className="hero-stat-value">{data.notaMediaGeral.toFixed(1)}</span>
-            <span className="hero-stat-sub">de 10 — {data.totalCidades} município(s) avaliados</span>
+            <span className="hero-stat-label">Índice médio geral</span>
+            <span className="hero-stat-value">{data.indiceMedioGeral.toFixed(0)}</span>
+            <span className="hero-stat-sub">de 100 — {data.totalCidades} município(s) avaliados</span>
           </div>
         )}
       </div>
@@ -73,8 +73,8 @@ export function VisaoGeralPage() {
         <>
           <div className="kpi-row">
             <div className="kpi">
-              <span className="label">Nota média geral</span>
-              <div className="val">{data!.notaMediaGeral.toFixed(1)}</div>
+              <span className="label">Índice médio geral</span>
+              <div className="val">{data!.indiceMedioGeral.toFixed(0)}</div>
             </div>
             <div className="kpi">
               <span className="label">Municípios avaliados</span>
@@ -85,11 +85,11 @@ export function VisaoGeralPage() {
               <div className="val">{data!.totalAvaliacoes}</div>
             </div>
             <div className="kpi">
-              <span className="label">Indicador mais crítico</span>
+              <span className="label">Dimensão mais crítica</span>
               <div className="val" style={{ fontSize: 16 }}>
-                {data!.indicadorCritico?.nome ?? "—"}
-                {data!.indicadorCritico && (
-                  <span className="delta down">{data!.indicadorCritico.media.toFixed(1)}</span>
+                {data!.dimensaoCritica?.nome ?? "—"}
+                {data!.dimensaoCritica && (
+                  <span className="delta down">{data!.dimensaoCritica.media.toFixed(0)}</span>
                 )}
               </div>
             </div>
@@ -98,15 +98,15 @@ export function VisaoGeralPage() {
           <div className="grid-main">
             <div className="card">
               <h3>Top 5 municípios</h3>
-              <p className="sub">Nota média da avaliação mais recente</p>
+              <p className="sub">Índice geral da avaliação mais recente</p>
               <div style={{ height: 260 }}>
                 <Bar
                   data={{
                     labels: data!.topRanking.map((r) => `${r.cidadeNome} — ${r.uf}`),
                     datasets: [
                       {
-                        label: "Nota média",
-                        data: data!.topRanking.map((r) => r.notaMedia),
+                        label: "Índice geral",
+                        data: data!.topRanking.map((r) => r.indiceGeral),
                         backgroundColor: "rgba(11,79,150,.75)",
                         borderRadius: 6,
                       },
@@ -116,7 +116,7 @@ export function VisaoGeralPage() {
                     indexAxis: "y" as const,
                     plugins: { legend: { display: false } },
                     scales: {
-                      x: { suggestedMin: 0, suggestedMax: 10, grid: { color: "#e3e8f0" } },
+                      x: { suggestedMin: 0, suggestedMax: 100, grid: { color: "#e3e8f0" } },
                       y: { grid: { display: false } },
                     },
                     maintainAspectRatio: false,
@@ -127,7 +127,7 @@ export function VisaoGeralPage() {
             </div>
 
             <div className="card">
-              <h3>Evolução da nota média</h3>
+              <h3>Evolução do índice médio</h3>
               <p className="sub">Todas as avaliações agrupadas por período</p>
               <div style={{ height: 260 }}>
                 <Line
@@ -135,8 +135,8 @@ export function VisaoGeralPage() {
                     labels: data!.evolucaoTemporal.map((p) => formatPeriodo(p.periodo)),
                     datasets: [
                       {
-                        label: "Nota média",
-                        data: data!.evolucaoTemporal.map((p) => p.notaMedia),
+                        label: "Índice médio",
+                        data: data!.evolucaoTemporal.map((p) => p.indiceMedio),
                         borderColor: "#00b3a4",
                         backgroundColor: "rgba(0,179,164,.15)",
                         borderWidth: 2.5,
@@ -149,7 +149,7 @@ export function VisaoGeralPage() {
                   options={{
                     plugins: { legend: { display: false } },
                     scales: {
-                      y: { suggestedMin: 0, suggestedMax: 10, grid: { color: "#e3e8f0" } },
+                      y: { suggestedMin: 0, suggestedMax: 100, grid: { color: "#e3e8f0" } },
                       x: { grid: { display: false } },
                     },
                     maintainAspectRatio: false,
@@ -161,11 +161,11 @@ export function VisaoGeralPage() {
           </div>
 
           <div className="card" style={{ marginTop: 18 }}>
-            <h3>Perfil médio dos indicadores</h3>
-            <p className="sub">Média geral de todos os municípios, por indicador (avaliação mais recente)</p>
+            <h3>Perfil médio por dimensão</h3>
+            <p className="sub">Média geral de todos os municípios, por dimensão (avaliação mais recente)</p>
             <RadarComparativo
-              labels={data!.perfilMedioIndicadores.map((p) => p.nome)}
-              atual={data!.perfilMedioIndicadores.map((p) => Number(p.media.toFixed(1)))}
+              labels={data!.perfilMedioDimensoes.map((p) => p.nome)}
+              atual={data!.perfilMedioDimensoes.map((p) => Number(p.media.toFixed(1)))}
             />
           </div>
         </>

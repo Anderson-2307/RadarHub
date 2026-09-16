@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { pool } from "../db/pool";
+import { calcularIndice, calcularDimensoes, NotaBruta } from "../lib/indice";
 
 export const avaliacoesRouter = Router();
 
@@ -14,20 +15,24 @@ async function buscarAvaliacaoCompleta(id: string) {
   if (avaliacaoResult.rows.length === 0) return null;
 
   const notasResult = await pool.query(
-    `SELECT ai.indicador_id AS "indicadorId", i.nome AS "indicadorNome", ai.nota::float AS nota
+    `SELECT ai.indicador_id AS "indicadorId", i.nome AS "indicadorNome", ai.nota::float AS nota,
+            i.peso::float AS "indicadorPeso", i.dimensao_id AS "dimensaoId", d.nome AS "dimensaoNome",
+            d.eixo_id AS "eixoId", e.nome AS "eixoNome", e.peso::float AS "eixoPeso"
      FROM avaliacao_indicador ai
      JOIN indicador i ON i.id = ai.indicador_id
+     JOIN dimensao d ON d.id = i.dimensao_id
+     JOIN eixo e ON e.id = d.eixo_id
      WHERE ai.avaliacao_id = $1
-     ORDER BY i.ordem, i.nome`,
+     ORDER BY e.ordem, d.ordem, i.ordem, i.nome`,
     [id]
   );
 
-  const notas = notasResult.rows;
-  const notaMedia = notas.length
-    ? notas.reduce((acc: number, n: any) => acc + n.nota, 0) / notas.length
-    : 0;
+  const notasBrutas: NotaBruta[] = notasResult.rows;
+  const { indiceGeral, porEixo } = calcularIndice(notasBrutas);
+  const porDimensao = calcularDimensoes(notasBrutas);
+  const notas = notasBrutas.map(({ indicadorId, indicadorNome, nota }) => ({ indicadorId, indicadorNome, nota }));
 
-  return { ...avaliacaoResult.rows[0], notas, notaMedia };
+  return { ...avaliacaoResult.rows[0], notas, indiceGeral, porEixo, porDimensao };
 }
 
 // Listar avaliações de uma cidade (para o comparador de períodos)
@@ -53,8 +58,8 @@ avaliacoesRouter.post("/", async (req, res) => {
     return res.status(400).json({ error: "Preencha cidade, datas e ao menos um indicador." });
   }
   for (const n of notas) {
-    if (typeof n.nota !== "number" || n.nota < 0 || n.nota > 10) {
-      return res.status(400).json({ error: "Cada nota deve estar entre 0 e 10." });
+    if (typeof n.nota !== "number" || n.nota < 1 || n.nota > 5) {
+      return res.status(400).json({ error: "Cada nota deve estar entre 1 e 5." });
     }
   }
 

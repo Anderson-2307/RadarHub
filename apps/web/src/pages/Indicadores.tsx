@@ -1,32 +1,50 @@
 import { useEffect, useState } from "react";
-import type { Indicador } from "@radar-sebrae/shared";
-import { indicadoresApi } from "../api/client";
+import type { EixoComEstrutura } from "@radar-sebrae/shared";
+import { estruturaApi, indicadoresApi } from "../api/client";
+
+function eixoClasse(nome: string) {
+  const n = nome.toLowerCase();
+  if (n.includes("gest")) return "eixo-gestao";
+  if (n.includes("competit")) return "eixo-competitividade";
+  if (n.includes("inova")) return "eixo-inovacao";
+  return "eixo-gestao";
+}
 
 export function IndicadoresPage() {
-  const [indicadores, setIndicadores] = useState<Indicador[]>([]);
+  const [estrutura, setEstrutura] = useState<EixoComEstrutura[]>([]);
+  const [dimensaoId, setDimensaoId] = useState("");
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
   const [peso, setPeso] = useState("1.0");
   const [erro, setErro] = useState<string | null>(null);
 
   async function carregar() {
-    setIndicadores(await indicadoresApi.listar());
+    setEstrutura(await estruturaApi.listar());
   }
 
   useEffect(() => {
     carregar();
   }, []);
 
+  const dimensoes = estrutura.flatMap((e) => e.dimensoes.map((d) => ({ ...d, eixoNome: e.nome })));
+  const totalIndicadores = dimensoes.reduce((acc, d) => acc + d.indicadores.length, 0);
+
   async function salvar() {
     setErro(null);
+    if (!dimensaoId) {
+      setErro("Selecione a dimensão do indicador.");
+      return;
+    }
     if (!nome.trim()) {
       setErro("Informe o nome do indicador.");
       return;
     }
+    const dimensao = dimensoes.find((d) => d.id === dimensaoId);
     await indicadoresApi.criar({
+      dimensaoId,
       nome: nome.trim(),
       descricao: descricao.trim() || null,
-      ordem: indicadores.length + 1,
+      ordem: (dimensao?.indicadores.length ?? 0) + 1,
       peso: Number(peso) || 1,
     });
     setNome("");
@@ -35,8 +53,8 @@ export function IndicadoresPage() {
     carregar();
   }
 
-  async function alternarAtivo(ind: Indicador) {
-    await indicadoresApi.atualizar(ind.id, { ativo: !ind.ativo });
+  async function alternarAtivo(indicadorId: string, ativo: boolean) {
+    await indicadoresApi.atualizar(indicadorId, { ativo: !ativo });
     carregar();
   }
 
@@ -44,31 +62,36 @@ export function IndicadoresPage() {
     <div>
       <div className="page-head">
         <div>
-          <h1>Indicadores</h1>
-          <p>Defina os indicadores que compõem o radar de avaliação. São eles que formam os eixos do gráfico.</p>
+          <h1>Estrutura do Radar</h1>
+          <p>
+            Três eixos, doze dimensões, um índice de 0 a 100. Cadastre os indicadores (escala de
+            maturidade de 1 a 5) dentro de cada dimensão.
+          </p>
         </div>
       </div>
 
       <div className="card" style={{ marginBottom: 20 }}>
         <h3>Novo indicador</h3>
-        <p className="sub">O peso é usado para ponderar o indicador em cálculos futuros (padrão 1.0).</p>
+        <p className="sub">O peso pondera o indicador dentro da média da sua dimensão (padrão 1.0).</p>
         <div className="form-grid">
+          <div className="field-group">
+            <label>Dimensão</label>
+            <select value={dimensaoId} onChange={(e) => setDimensaoId(e.target.value)}>
+              <option value="">-- selecione --</option>
+              {dimensoes.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.eixoNome} — {d.nome}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="field-group">
             <label>Nome do indicador</label>
             <input
               type="text"
-              placeholder="Ex: Gestão Municipal"
+              placeholder="Ex: Planejamento estratégico"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-            />
-          </div>
-          <div className="field-group">
-            <label>Descrição (opcional)</label>
-            <input
-              type="text"
-              placeholder="Detalhe o que este indicador avalia"
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
             />
           </div>
           <div className="field-group">
@@ -81,6 +104,15 @@ export function IndicadoresPage() {
               onChange={(e) => setPeso(e.target.value)}
             />
           </div>
+          <div className="field-group" style={{ gridColumn: "1 / -1" }}>
+            <label>Descrição (opcional)</label>
+            <input
+              type="text"
+              placeholder="Detalhe o que este indicador avalia"
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+            />
+          </div>
         </div>
         <div style={{ marginTop: 14 }}>
           <button className="btn-primary" onClick={salvar}>
@@ -91,42 +123,47 @@ export function IndicadoresPage() {
       </div>
 
       <div className="card">
-        <h3>Indicadores cadastrados</h3>
-        <p className="sub">{indicadores.length} indicador(es)</p>
-        {indicadores.length === 0 ? (
-          <div className="empty-state">Nenhum indicador cadastrado ainda.</div>
+        <h3>Eixos e dimensões</h3>
+        <p className="sub">{totalIndicadores} indicador(es) cadastrado(s) no total</p>
+
+        {estrutura.length === 0 ? (
+          <div className="empty-state">Nenhum eixo cadastrado ainda.</div>
         ) : (
-          <div className="table-scroll">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Ordem</th>
-                <th>Nome</th>
-                <th>Peso</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {indicadores.map((i) => (
-                <tr key={i.id}>
-                  <td>{i.ordem}</td>
-                  <td>{i.nome}</td>
-                  <td>{i.peso.toFixed(1)}</td>
-                  <td>
-                    <span className={`badge ${i.ativo ? "active" : "inactive"}`}>
-                      {i.ativo ? "Ativo" : "Inativo"}
-                    </span>
-                  </td>
-                  <td className="row-actions">
-                    <button className="icon-btn" onClick={() => alternarAtivo(i)}>
-                      {i.ativo ? "Desativar" : "Ativar"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="eixos-cols">
+            {estrutura.map((eixo) => (
+              <div className={`eixo-col ${eixoClasse(eixo.nome)}`} key={eixo.id}>
+                <div className="eixo-col-head">
+                  <h4>{eixo.nome}</h4>
+                  <span>{Math.round(eixo.peso * 100)}%</span>
+                </div>
+                {eixo.dimensoes.map((dimensao) => (
+                  <div className="dimensao-block" key={dimensao.id}>
+                    <h5>{dimensao.nome}</h5>
+                    {dimensao.indicadores.length === 0 ? (
+                      <ul>
+                        <li style={{ opacity: 0.7 }}>Nenhum indicador cadastrado</li>
+                      </ul>
+                    ) : (
+                      <ul>
+                        {dimensao.indicadores.map((ind) => (
+                          <li key={ind.id}>
+                            {ind.nome}
+                            {" "}
+                            <button
+                              className="icon-btn"
+                              style={{ color: "inherit", opacity: ind.ativo ? 1 : 0.5 }}
+                              onClick={() => alternarAtivo(ind.id, ind.ativo)}
+                            >
+                              ({ind.ativo ? "ativo" : "inativo"})
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
         )}
       </div>

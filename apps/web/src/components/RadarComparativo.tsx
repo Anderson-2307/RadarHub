@@ -9,7 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import type { NotaIndicador } from "@radar-sebrae/shared";
+import type { PontuacaoDimensao } from "@radar-sebrae/shared";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
@@ -51,8 +51,8 @@ export function RadarComparativo({ labels, atual, anterior }: Props) {
     scales: {
       r: {
         suggestedMin: 0,
-        suggestedMax: 10,
-        ticks: { stepSize: 2, backdropColor: "transparent" },
+        suggestedMax: 100,
+        ticks: { stepSize: 20, backdropColor: "transparent" },
         angleLines: { color: "#e3e8f0" },
         grid: { color: "#e3e8f0" },
         pointLabels: { font: { size: 10.5 } },
@@ -78,11 +78,11 @@ export function exportarRadarPNG() {
   link.click();
 }
 
-function notasParaValores(labels: string[], notas: NotaIndicador[]) {
+function dimensoesParaValores(labels: string[], porDimensao: PontuacaoDimensao[]) {
   return labels.map((label) => {
-    const nota = notas.find((n) => n.indicadorNome === label);
-    return nota ? nota.nota : 0;
+    const dim = porDimensao.find((d) => d.nome === label);
+    return dim ? Number(dim.pontuacao.toFixed(1)) : 0;
   });
 }
 
-export { notasParaValores };
+export { dimensoesParaValores };
