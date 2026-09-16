@@ -15,7 +15,7 @@ dashboardRouter.get("/overview", async (_req, res) => {
     cidadeAtiva: boolean;
     periodoInicio: string;
     indiceGeral: number;
-    dimensoes: { dimensaoId: string; nome: string; pontuacao: number }[];
+    dimensoes: { dimensaoId: string; nome: string; pontuacao: number; eixoId: string; eixoNome: string }[];
   }
 
   const resumos: ResumoAvaliacao[] = Array.from(porAvaliacao.values()).map((linhasAvaliacao: LinhaBruta[]) => {
@@ -40,10 +40,15 @@ dashboardRouter.get("/overview", async (_req, res) => {
     ? ultimas.reduce((acc, r) => acc + r.indiceGeral, 0) / totalCidades
     : 0;
 
-  const somaPorDimensao = new Map<string, { nome: string; soma: number; qtd: number }>();
+  const somaPorDimensao = new Map<
+    string,
+    { nome: string; soma: number; qtd: number; eixoId: string; eixoNome: string }
+  >();
   for (const r of ultimas) {
     for (const d of r.dimensoes) {
-      const atual = somaPorDimensao.get(d.dimensaoId) ?? { nome: d.nome, soma: 0, qtd: 0 };
+      const atual =
+        somaPorDimensao.get(d.dimensaoId) ??
+        { nome: d.nome, soma: 0, qtd: 0, eixoId: d.eixoId, eixoNome: d.eixoNome };
       atual.soma += d.pontuacao;
       atual.qtd += 1;
       somaPorDimensao.set(d.dimensaoId, atual);
@@ -53,6 +58,8 @@ dashboardRouter.get("/overview", async (_req, res) => {
     dimensaoId,
     nome: d.nome,
     media: d.qtd ? d.soma / d.qtd : 0,
+    eixoId: d.eixoId,
+    eixoNome: d.eixoNome,
   }));
 
   const dimensaoCritica = perfilMedioDimensoes.length

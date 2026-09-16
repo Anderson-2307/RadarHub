@@ -21,6 +21,8 @@ export interface PontuacaoDimensao {
   dimensaoId: string;
   nome: string;
   pontuacao: number;
+  eixoId: string;
+  eixoNome: string;
 }
 
 // Normaliza uma média de maturidade (1 a 5) para o índice 0-100.
@@ -65,9 +67,14 @@ export function calcularIndice(notas: NotaBruta[]): { indiceGeral: number; porEi
 
 // Pontuação normalizada (0-100) por dimensão, para perfis e rankings de dimensão.
 export function calcularDimensoes(notas: NotaBruta[]): PontuacaoDimensao[] {
-  const porDimensao = new Map<string, { somaPonderada: number; somaPesos: number; nome: string }>();
+  const porDimensao = new Map<
+    string,
+    { somaPonderada: number; somaPesos: number; nome: string; eixoId: string; eixoNome: string }
+  >();
   for (const n of notas) {
-    const atual = porDimensao.get(n.dimensaoId) ?? { somaPonderada: 0, somaPesos: 0, nome: n.dimensaoNome };
+    const atual =
+      porDimensao.get(n.dimensaoId) ??
+      { somaPonderada: 0, somaPesos: 0, nome: n.dimensaoNome, eixoId: n.eixoId, eixoNome: n.eixoNome };
     atual.somaPonderada += n.nota * n.indicadorPeso;
     atual.somaPesos += n.indicadorPeso;
     porDimensao.set(n.dimensaoId, atual);
@@ -77,5 +84,7 @@ export function calcularDimensoes(notas: NotaBruta[]): PontuacaoDimensao[] {
     dimensaoId,
     nome: dim.nome,
     pontuacao: dim.somaPesos > 0 ? normalizar(dim.somaPonderada / dim.somaPesos) : 0,
+    eixoId: dim.eixoId,
+    eixoNome: dim.eixoNome,
   }));
 }

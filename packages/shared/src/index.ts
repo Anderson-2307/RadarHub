@@ -99,6 +99,8 @@ export interface DimensaoMedia {
   dimensaoId: string;
   nome: string;
   media: number;
+  eixoId: string;
+  eixoNome: string;
 }
 
 export interface TopRankingItem {

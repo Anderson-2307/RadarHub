@@ -14,6 +14,7 @@ import {
   Legend,
 } from "chart.js";
 import { RadarComparativo } from "../components/RadarComparativo";
+import { IsometricBarChart } from "../components/IsometricBarChart";
 import { Link } from "react-router-dom";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Filler, Tooltip, Legend);
@@ -22,6 +23,24 @@ function formatPeriodo(periodo: string) {
   const [ano, mes] = periodo.split("-");
   const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
   return `${meses[Number(mes) - 1]}/${ano.slice(2)}`;
+}
+
+const ORDEM_EIXOS = ["Gestão", "Competitividade", "Inovação"];
+const COR_EIXO: Record<string, string> = {
+  Gestão: "#00274d",
+  Competitividade: "#0b4f96",
+  Inovação: "#e79c00",
+};
+
+function agruparPorEixo(dimensoes: { eixoNome: string; nome: string; media: number }[]) {
+  const grupos = new Map<string, { nome: string; media: number }[]>();
+  for (const d of dimensoes) {
+    const atual = grupos.get(d.eixoNome) ?? [];
+    atual.push({ nome: d.nome, media: d.media });
+    grupos.set(d.eixoNome, atual);
+  }
+  const nomes = [...ORDEM_EIXOS.filter((n) => grupos.has(n)), ...Array.from(grupos.keys()).filter((n) => !ORDEM_EIXOS.includes(n))];
+  return nomes.map((eixoNome) => ({ eixoNome, dimensoes: grupos.get(eixoNome)! }));
 }
 
 export function VisaoGeralPage() {
@@ -167,6 +186,23 @@ export function VisaoGeralPage() {
               labels={data!.perfilMedioDimensoes.map((p) => p.nome)}
               atual={data!.perfilMedioDimensoes.map((p) => Number(p.media.toFixed(1)))}
             />
+          </div>
+
+          <div className="card" style={{ marginTop: 18 }}>
+            <h3>Dimensões por eixo</h3>
+            <p className="sub">Pontuação média (0-100) de cada dimensão, agrupada por eixo</p>
+            <div className="eixos-cols">
+              {agruparPorEixo(data!.perfilMedioDimensoes).map((grupo) => (
+                <div key={grupo.eixoNome} style={{ textAlign: "center" }}>
+                  <h4 style={{ margin: "0 0 6px", fontSize: 14 }}>{grupo.eixoNome}</h4>
+                  <IsometricBarChart
+                    labels={grupo.dimensoes.map((d) => d.nome)}
+                    valores={grupo.dimensoes.map((d) => d.media)}
+                    cor={COR_EIXO[grupo.eixoNome] ?? "#0b4f96"}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </>
       )}
