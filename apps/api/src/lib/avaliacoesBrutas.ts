@@ -12,8 +12,9 @@ export interface LinhaBruta extends NotaBruta {
 
 // Uma linha por (avaliação, indicador), com toda a hierarquia eixo/dimensão/indicador
 // já resolvida — base para qualquer agregação de índice (ranking, dashboard, comparador).
-export async function buscarLinhasBrutas() {
-  const result = await pool.query<LinhaBruta>(`
+export async function buscarLinhasBrutas(contaId: string) {
+  const result = await pool.query<LinhaBruta>(
+    `
     SELECT
       a.id AS "avaliacaoId", a.cidade_id AS "cidadeId", c.nome AS "cidadeNome", est.uf, c.ativo AS "cidadeAtiva",
       to_char(a.periodo_inicio, 'YYYY-MM-DD') AS "periodoInicio",
@@ -27,7 +28,10 @@ export async function buscarLinhasBrutas() {
     JOIN indicador i ON i.id = ai.indicador_id
     JOIN dimensao d ON d.id = i.dimensao_id
     JOIN eixo e ON e.id = d.eixo_id
-  `);
+    WHERE a.conta_id = $1
+  `,
+    [contaId]
+  );
   return result.rows;
 }
 

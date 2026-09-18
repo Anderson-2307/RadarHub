@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const links = [
   { section: "Principal", items: [
@@ -21,10 +22,17 @@ interface Props {
 
 export function Sidebar({ open, onClose }: Props) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { usuario, conta, logout } = useAuth();
   const [colapsadas, setColapsadas] = useState<Record<string, boolean>>({});
 
   function alternar(section: string) {
     setColapsadas((prev) => ({ ...prev, [section]: !prev[section] }));
+  }
+
+  function sair() {
+    logout();
+    navigate("/login", { replace: true });
   }
 
   return (
@@ -75,6 +83,18 @@ export function Sidebar({ open, onClose }: Props) {
           </div>
         );
       })}
+
+      {usuario && (
+        <div className="sidebar-account">
+          <div className="sidebar-account-info">
+            <span className="sidebar-account-nome">{usuario.nome}</span>
+            <span className="sidebar-account-conta">{conta?.nome}</span>
+          </div>
+          <button type="button" className="sidebar-account-sair" onClick={sair}>
+            Sair
+          </button>
+        </div>
+      )}
     </aside>
   );
 }

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { Sidebar } from "./components/Sidebar";
+import { RequireAuth } from "./components/RequireAuth";
+import { LoginPage } from "./pages/Login";
 import { VisaoGeralPage } from "./pages/VisaoGeral";
 import { ComparadorPage } from "./pages/Comparador";
 import { RankingPage } from "./pages/Ranking";
@@ -8,7 +10,7 @@ import { CidadesPage } from "./pages/Cidades";
 import { IndicadoresPage } from "./pages/Indicadores";
 import { AvaliacoesPage } from "./pages/Avaliacoes";
 
-export default function App() {
+function AppShell() {
   const [menuAberto, setMenuAberto] = useState(false);
   const location = useLocation();
 
@@ -52,5 +54,21 @@ export default function App() {
         </Routes>
       </main>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/*"
+        element={
+          <RequireAuth>
+            <AppShell />
+          </RequireAuth>
+        }
+      />
+    </Routes>
   );
 }

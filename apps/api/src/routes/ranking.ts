@@ -4,8 +4,8 @@ import { buscarLinhasBrutas, agruparPorAvaliacao } from "../lib/avaliacoesBrutas
 
 export const rankingRouter = Router();
 
-rankingRouter.get("/", async (_req, res) => {
-  const linhas = await buscarLinhasBrutas();
+rankingRouter.get("/", async (req, res) => {
+  const linhas = await buscarLinhasBrutas(req.usuario!.contaId);
   const porAvaliacao = agruparPorAvaliacao(linhas);
 
   const avaliacoesPorCidade = new Map<

@@ -2,7 +2,9 @@ import axios from "axios";
 import type {
   Avaliacao,
   AvaliacaoInput,
+  AuthResponse,
   Cidade,
+  Conta,
   DashboardOverview,
   Dimensao,
   Eixo,
@@ -10,10 +12,36 @@ import type {
   Estado,
   Indicador,
   RankingItem,
+  Usuario,
 } from "@radar-sebrae/shared";
+import { clearToken, getToken } from "./authToken";
 
 const baseURL = import.meta.env.VITE_API_URL ?? "/api";
 const api = axios.create({ baseURL });
+
+api.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      clearToken();
+    }
+    return Promise.reject(error);
+  }
+);
+
+export const authApi = {
+  google: (credential: string) =>
+    api.post<AuthResponse>("/auth/google", { credential }).then((r) => r.data),
+  me: () => api.get<{ usuario: Usuario; conta: Conta }>("/auth/me").then((r) => r.data),
+};
 
 export const estadosApi = {
   listar: () => api.get<Estado[]>("/estados").then((r) => r.data),

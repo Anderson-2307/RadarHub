@@ -1,3 +1,22 @@
+export interface Conta {
+  id: string;
+  nome: string;
+}
+
+export interface Usuario {
+  id: string;
+  contaId: string;
+  email: string;
+  nome: string;
+  papel: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  usuario: Usuario;
+  conta: Conta;
+}
+
 export interface Estado {
   id: string;
   nome: string;

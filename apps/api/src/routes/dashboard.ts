@@ -4,8 +4,8 @@ import { buscarLinhasBrutas, agruparPorAvaliacao, LinhaBruta } from "../lib/aval
 
 export const dashboardRouter = Router();
 
-dashboardRouter.get("/overview", async (_req, res) => {
-  const linhas = await buscarLinhasBrutas();
+dashboardRouter.get("/overview", async (req, res) => {
+  const linhas = await buscarLinhasBrutas(req.usuario!.contaId);
   const porAvaliacao = agruparPorAvaliacao(linhas);
 
   interface ResumoAvaliacao {

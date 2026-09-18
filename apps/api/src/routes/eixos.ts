@@ -10,8 +10,11 @@ const SELECT_EIXO = `
 
 eixosRouter.get("/", async (req, res) => {
   const somenteAtivos = req.query.ativos === "true";
-  const where = somenteAtivos ? "WHERE ativo = true" : "";
-  const result = await pool.query(`${SELECT_EIXO} ${where} ORDER BY ordem, nome`);
+  const filtroAtivo = somenteAtivos ? "AND ativo = true" : "";
+  const result = await pool.query(
+    `${SELECT_EIXO} WHERE conta_id = $1 ${filtroAtivo} ORDER BY ordem, nome`,
+    [req.usuario!.contaId]
+  );
   res.json(result.rows);
 });
 
@@ -19,8 +22,8 @@ eixosRouter.post("/", async (req, res) => {
   const { nome, peso, ordem } = req.body;
   if (!nome) return res.status(400).json({ error: "Informe o nome do eixo." });
   const result = await pool.query(
-    `INSERT INTO eixo (nome, peso, ordem) VALUES ($1, COALESCE($2, 0), COALESCE($3, 0)) RETURNING id`,
-    [nome, peso ?? null, ordem ?? null]
+    `INSERT INTO eixo (nome, peso, ordem, conta_id) VALUES ($1, COALESCE($2, 0), COALESCE($3, 0), $4) RETURNING id`,
+    [nome, peso ?? null, ordem ?? null, req.usuario!.contaId]
   );
   const created = await pool.query(`${SELECT_EIXO} WHERE id = $1`, [result.rows[0].id]);
   res.status(201).json(created.rows[0]);
@@ -35,15 +38,15 @@ eixosRouter.put("/:id", async (req, res) => {
        peso = COALESCE($2, peso),
        ordem = COALESCE($3, ordem),
        ativo = COALESCE($4, ativo)
-     WHERE id = $5`,
-    [nome ?? null, peso ?? null, ordem ?? null, ativo ?? null, id]
+     WHERE id = $5 AND conta_id = $6`,
+    [nome ?? null, peso ?? null, ordem ?? null, ativo ?? null, id, req.usuario!.contaId]
   );
-  const updated = await pool.query(`${SELECT_EIXO} WHERE id = $1`, [id]);
+  const updated = await pool.query(`${SELECT_EIXO} WHERE id = $1 AND conta_id = $2`, [id, req.usuario!.contaId]);
   if (updated.rows.length === 0) return res.status(404).json({ error: "Eixo não encontrado." });
   res.json(updated.rows[0]);
 });
 
 eixosRouter.delete("/:id", async (req, res) => {
-  await pool.query("UPDATE eixo SET ativo = false WHERE id = $1", [req.params.id]);
+  await pool.query("UPDATE eixo SET ativo = false WHERE id = $1 AND conta_id = $2", [req.params.id, req.usuario!.contaId]);
   res.status(204).send();
 });

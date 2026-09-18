@@ -4,13 +4,13 @@ import { calcularIndice, calcularDimensoes, NotaBruta } from "../lib/indice";
 
 export const avaliacoesRouter = Router();
 
-async function buscarAvaliacaoCompleta(id: string) {
+async function buscarAvaliacaoCompleta(id: string, contaId: string) {
   const avaliacaoResult = await pool.query(
     `SELECT id, cidade_id AS "cidadeId", to_char(data_avaliacao, 'YYYY-MM-DD') AS "dataAvaliacao",
             to_char(periodo_inicio, 'YYYY-MM-DD') AS "periodoInicio",
             to_char(periodo_fim, 'YYYY-MM-DD') AS "periodoFim", observacao
-     FROM avaliacao WHERE id = $1`,
-    [id]
+     FROM avaliacao WHERE id = $1 AND conta_id = $2`,
+    [id, contaId]
   );
   if (avaliacaoResult.rows.length === 0) return null;
 
@@ -37,22 +37,24 @@ async function buscarAvaliacaoCompleta(id: string) {
 
 // Listar avaliações de uma cidade (para o comparador de períodos)
 avaliacoesRouter.get("/cidade/:cidadeId", async (req, res) => {
+  const contaId = req.usuario!.contaId;
   const result = await pool.query(
-    `SELECT id FROM avaliacao WHERE cidade_id = $1 ORDER BY periodo_inicio ASC`,
-    [req.params.cidadeId]
+    `SELECT id FROM avaliacao WHERE cidade_id = $1 AND conta_id = $2 ORDER BY periodo_inicio ASC`,
+    [req.params.cidadeId, contaId]
   );
-  const avaliacoes = await Promise.all(result.rows.map((r) => buscarAvaliacaoCompleta(r.id)));
+  const avaliacoes = await Promise.all(result.rows.map((r) => buscarAvaliacaoCompleta(r.id, contaId)));
   res.json(avaliacoes);
 });
 
 avaliacoesRouter.get("/:id", async (req, res) => {
-  const avaliacao = await buscarAvaliacaoCompleta(req.params.id);
+  const avaliacao = await buscarAvaliacaoCompleta(req.params.id, req.usuario!.contaId);
   if (!avaliacao) return res.status(404).json({ error: "Avaliação não encontrada." });
   res.json(avaliacao);
 });
 
 avaliacoesRouter.post("/", async (req, res) => {
   const { cidadeId, dataAvaliacao, periodoInicio, periodoFim, observacao, notas } = req.body;
+  const contaId = req.usuario!.contaId;
 
   if (!cidadeId || !dataAvaliacao || !periodoInicio || !periodoFim || !Array.isArray(notas) || notas.length === 0) {
     return res.status(400).json({ error: "Preencha cidade, datas e ao menos um indicador." });
@@ -66,10 +68,16 @@ avaliacoesRouter.post("/", async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+    const cidadeValida = await client.query("SELECT 1 FROM cidade WHERE id = $1 AND conta_id = $2", [cidadeId, contaId]);
+    if (cidadeValida.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({ error: "Município inválido." });
+    }
+
     const avaliacaoResult = await client.query(
-      `INSERT INTO avaliacao (cidade_id, data_avaliacao, periodo_inicio, periodo_fim, observacao)
-       VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-      [cidadeId, dataAvaliacao, periodoInicio, periodoFim, observacao ?? null]
+      `INSERT INTO avaliacao (cidade_id, data_avaliacao, periodo_inicio, periodo_fim, observacao, conta_id)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+      [cidadeId, dataAvaliacao, periodoInicio, periodoFim, observacao ?? null, contaId]
     );
     const avaliacaoId = avaliacaoResult.rows[0].id;
 
@@ -81,7 +89,7 @@ avaliacoesRouter.post("/", async (req, res) => {
     }
 
     await client.query("COMMIT");
-    const avaliacaoCompleta = await buscarAvaliacaoCompleta(avaliacaoId);
+    const avaliacaoCompleta = await buscarAvaliacaoCompleta(avaliacaoId, contaId);
     res.status(201).json(avaliacaoCompleta);
   } catch (err) {
     await client.query("ROLLBACK");
@@ -93,6 +101,6 @@ avaliacoesRouter.post("/", async (req, res) => {
 });
 
 avaliacoesRouter.delete("/:id", async (req, res) => {
-  await pool.query("DELETE FROM avaliacao WHERE id = $1", [req.params.id]);
+  await pool.query("DELETE FROM avaliacao WHERE id = $1 AND conta_id = $2", [req.params.id, req.usuario!.contaId]);
   res.status(204).send();
 });
